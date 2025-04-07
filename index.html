@@ -1229,31 +1229,62 @@
                  avance: { title: "Avancé (env. 20 min) - Modification de la Perception", duration: 1200, script: [ { time: 0, text: "Installez-vous confortablement. Fermez les yeux et prenez quelques instants pour entrer dans un état de relaxation profonde, en utilisant la technique qui vous convient le mieux (respiration, scan corporel...)." }, { time: 60, text: "Une fois bien détendu, portez votre attention sur votre acouphène. Observez-le avec une curiosité détachée, comme un scientifique observe un phénomène." }, { time: 120, text: "Quelles sont ses caractéristiques ? Est-il aigu, grave ? Continu, pulsatile ? Est-il stable ou changeant ? Essayez de le décrire mentalement, sans jugement de valeur ('gênant', 'horrible')." }, { time: 180, text: "Imaginez maintenant que vous avez des 'cadrans de contrôle' mentaux pour ce son." }, { time: 240, text: "Visualisez un cadran pour le volume. Imaginez que vous tournez ce cadran très lentement vers le bas. Même si le son réel ne change pas, notez toute modification dans votre perception ou votre réaction émotionnelle." }, { time: 330, text: "Visualisez un cadran pour la 'tonalité' ou la 'qualité' du son. Imaginez que vous pouvez le rendre légèrement plus grave, ou plus doux, ou plus diffus. Jouez mentalement avec ces caractéristiques." }, { time: 420, text: "Imaginez un cadran pour la 'localisation'. Pouvez-vous mentalement déplacer le son ? Le rendre plus externe, plus lointain ? Le laisser flotter hors de votre tête ?" }, { time: 510, text: "Visualisez un cadran pour l''émotion' associée au son. Imaginez tourner ce cadran de 'gêne' ou 'anxiété' vers 'neutre' ou même 'acceptation'." }, { time: 600, text: "Maintenant, laissez les cadrans et portez votre attention sur une sensation agréable dans votre corps. Peut-être la chaleur de vos mains, la détente de vos épaules, ou le calme de votre respiration." }, { time: 690, text: "Amplifiez cette sensation agréable. Laissez-la grandir et se diffuser dans tout votre corps, créant un sentiment général de bien-être." }, { time: 780, text: "Imaginez que ce bien-être est comme une bulle protectrice autour de vous. L'acouphène peut être là, à l'extérieur ou à l'intérieur de la bulle, mais il ne perturbe pas le calme à l'intérieur." }, { time: 900, text: "L'acouphène est juste un son. Il n'a que le pouvoir que vous lui donnez. Vous apprenez à lui retirer ce pouvoir émotionnel." }, { time: 1020, text: "Ancrez cette sensation de contrôle et de calme en vous. Prenez une profonde inspiration et expirez lentement." }, { time: 1140, text: "Rappelez-vous que cette capacité à modifier votre perception s'affine avec la pratique régulière." }, { time: 1170, text: "Commencez maintenant à revenir progressivement à votre état de conscience habituel. Sentez l'énergie revenir dans votre corps. Bougez les doigts, les orteils." }, { time: 1190, text: "Quand vous êtes prêt, ouvrez les yeux, en gardant ce sentiment de perspective et de calme intérieur renouvelé." } ] }
              };
 
+                        // Fonction updateHypnoTimer MISE A JOUR v2
             function updateHypnoTimer() {
-                const now = Date.now(); const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
+                const now = Date.now();
+                const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
                 const timerDisplay = document.querySelector('#hypnose-session .timer');
                 const textContent = document.getElementById('session-text-content');
                 const stepIndicator = document.getElementById('session-step-indicator');
-                if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
-                if (hypnoCurrentSessionData && textContent) {
-                    const elapsed = hypnoCurrentSessionData.duration - remaining;
-                    const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
-                    const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
-                    if (currentStep) {
-                        const currentTextElement = textContent.querySelector('p');
-                        const displayedTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null;
-                        const currentStepTextEscaped = Utils.escapeHtml(currentStep.text);
-                        if (!displayedTextEscaped || displayedTextEscaped !== currentStepTextEscaped) {
-                            textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
-                            textContent.scrollTop = textContent.scrollHeight;
-                            if (hypnoTtsEnabled && TTSManager.isSupported()) { TTSManager.speak(currentStep.text); } // Speak raw text
-                        }
-                        if (stepIndicator) { const totalSteps = hypnoCurrentSessionData.script.length; const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex; stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`; }
-                    }
-                }
-                if (remaining <= 0) { console.log("Hypno timer 0."); hypnoSessionCompleted = true; stopHypnoSession(); }
-            }
 
+                if (!hypnoCurrentSessionData || !textContent) { // Vérifier si la session est toujours active
+                    if (hypnoTimerInterval) clearInterval(hypnoTimerInterval); // Arrêter le timer si plus de données
+                    return;
+                }
+
+                if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
+
+                const elapsed = hypnoCurrentSessionData.duration - remaining;
+                const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
+                const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
+
+                if (currentStep) {
+                    const currentTextElement = textContent.querySelector('p');
+                    const displayedTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null; // Texte affiché (déjà échappé)
+                    const currentStepTextRaw = currentStep.text; // Texte brut du script
+                    const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
+
+                    // Mettre à jour l'affichage SEULEMENT si le texte a changé
+                    if (!displayedTextEscaped || displayedTextEscaped !== currentStepTextEscaped) {
+                        textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
+                        textContent.scrollTop = textContent.scrollHeight;
+
+                        // Déclencher la parole SEULEMENT si :
+                        // 1. TTS est activé ET supporté
+                        // 2. Le texte a effectivement changé (ce qu'on vient de vérifier)
+                        // 3. Le TTS n'est PAS déjà en train de parler (pour éviter l'interruption)
+                        if (hypnoTtsEnabled && TTSManager.isSupported() && !TTSManager.isSpeaking()) {
+                            console.log(`[updateHypnoTimer] Changement texte détecté ET TTS inactif. Lecture TTS pour: "${currentStepTextRaw.substring(0, 30)}..."`);
+                            TTSManager.speak(currentStepTextRaw); // Parler le texte BRUT
+                        } else if (hypnoTtsEnabled && TTSManager.isSupported() && TTSManager.isSpeaking()){
+                            console.log("[updateHypnoTimer] Changement texte détecté MAIS TTS déjà actif. Parole ignorée pour l'instant.");
+                            // On pourrait appeler cancel() ici puis speak() mais ça causerait l'interruption vue avant.
+                            // Il vaut mieux laisser la parole actuelle se terminer. L'étape suivante sera lue au prochain tick du timer si besoin.
+                        }
+                    }
+
+                    // Mise à jour indicateur étape
+                    if (stepIndicator) { const totalSteps = hypnoCurrentSessionData.script.length; const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex; stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`; }
+                }
+
+                // Arrêt session si temps écoulé
+                if (remaining <= 0 && hypnoTimerInterval) {
+                     console.log("Hypno timer 0 détecté dans updateHypnoTimer.");
+                     hypnoSessionCompleted = true;
+                     stopHypnoSession(); // Arrête le timer via clearInterval dans stopHypnoSession
+                 }
+            }
+			
             function startHypnoSession(sessionKey) {
                 console.log(`Starting session: ${sessionKey}`);
                 hypnoCurrentSessionData = sessionsData[sessionKey]; if (!hypnoCurrentSessionData) { UI.showToast("Erreur session.", "error"); return; }
