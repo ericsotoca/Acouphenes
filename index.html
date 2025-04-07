@@ -1241,21 +1241,20 @@
 					}
 
 					// Queue TTS if enabled, supported, and conditions are met
+					// --- Mise en file d'attente TTS (LOGIQUE CORRIGÉE) ---
+					// Ne met en file que si le temps ou l'index de l'étape a réellement changé.
 					if (
-						hypnoTtsEnabled &&
-						TTSManager.isSupported() &&
-						currentStep.time !== lastQueuedStepTime &&
-						currentStepIndex !== lastQueuedStepIndex &&
-						textToSpeak === null
+					  hypnoTtsEnabled &&
+					  TTSManager.isSupported() &&
+					  (currentStep.time !== lastQueuedStepTime || currentStepIndex !== lastQueuedStepIndex) // On vérifie si le temps OU l'index a changé
 					) {
-						console.log(
-							`[UPDATEHYPNODISPLAY] Mise en file d'attente TTS pour étape ${currentStepIndex + 1} à temps ${currentStep.time} (dernier temps ${lastQueuedStepTime}, dernier index ${lastQueuedStepIndex}). Texte : "${currentStepTextRaw.substring(0, 30)}..."`
-						);
-						textToSpeak = currentStepTextRaw; // Queue the text for the new step
-						lastQueuedStepTime = currentStep.time; // Update the time tracker
-						lastQueuedStepIndex = currentStepIndex; // Update the index tracker
+					  console.log(
+						`[UPDATEHYPNODISPLAY] Nouvelle étape détectée (Index: ${currentStepIndex}, Temps: ${currentStep.time}). Mise en file TTS: "${currentStepTextRaw.substring(0, 30)}..."` // Log plus clair
+					  );
+					  textToSpeak = currentStepTextRaw;         // Met le texte de la nouvelle étape en file
+					  lastQueuedStepTime = currentStep.time;    // Met à jour le tracker temps
+					  lastQueuedStepIndex = currentStepIndex; // Met à jour le tracker index
 					}
-
 					// Update the step indicator
 					if (stepIndicator) {
 						const totalSteps = hypnoCurrentSessionData.script.length;
