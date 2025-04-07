@@ -551,7 +551,7 @@
 
         <!-- Footer (reste identique) -->
         <footer>
-            <p>Acouphènes Zen &copy; 2025 - Outil de gestion non médical.</p>
+            <p>Acouphènes Zen &copy; 2024 - Outil de gestion non médical.</p>
             <p style="font-size: 0.8em; margin-top: 5px;"><strong>Important:</strong> Cette application ne remplace pas un avis médical. Consultez un professionnel de santé.</p>
         </footer>
     </div>
@@ -1068,326 +1068,126 @@
             })();
 
             // --- MODULE: UI (Manipulation du DOM & Feedback) ---
+            // --- MODULE: UI (Manipulation du DOM & Feedback) ---
             const UI = (() => {
-                const uiElements = {
-                    mainContent: document.getElementById('main-content'),
-                    navLinks: document.querySelectorAll('#main-nav a[href^="#"]'),
-                };
-
-                function renderTemplate(templateId, context = {}) {
-                    const template = document.getElementById(templateId);
-                    if (!template) {
-                        console.error(`Template non trouvé : ${templateId}`);
-                        uiElements.mainContent.innerHTML = `<section class="content-section"><p class="alert alert-danger">Erreur : Contenu de la page introuvable.</p></section>`;
-                        setActiveNavLink('');
-                        return null;
-                    }
-                    try {
-                        const content = template.content.cloneNode(true);
-                        uiElements.mainContent.innerHTML = '';
-                        uiElements.mainContent.appendChild(content);
-                        setActiveNavLink(templateId.replace('template-', ''));
-                        window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll to top
-                        return uiElements.mainContent.firstChild;
-                    } catch (error) {
-                         console.error(`Erreur lors du rendu du template ${templateId}:`, error);
-                         uiElements.mainContent.innerHTML = `<section class="content-section"><p class="alert alert-danger">Erreur lors de l'affichage de cette section.</p></section>`;
-                         setActiveNavLink('');
-                         return null;
-                    }
-                }
-
-                function setActiveNavLink(hash) {
-                     uiElements.navLinks.forEach(link => {
-                         link.classList.remove('active');
-                         if (link.getAttribute('href') === `#${hash}`) { link.classList.add('active'); }
-                     });
-                 }
-
-                 function displayEvaluationResult(score, message) {
-                    const resultDiv = document.getElementById('evaluation-result');
-                    if (resultDiv) {
-                        let alertClass = 'alert-success';
-                        if (score >= 25) alertClass = 'alert-danger';
-                        else if (score >= 15) alertClass = 'alert-warning';
-                        resultDiv.innerHTML = `<div class="alert ${alertClass}"><strong>Résultat :</strong> ${Utils.escapeHtml(message)} (Score d'impact: ${score})</div>`;
-                        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                 }
-
-                 function renderJournalEntry(entry) {
-                    const li = document.createElement('li');
-                    const entryDate = new Date(entry.date);
-                    const formattedDateTime = entryDate.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
-                    li.innerHTML = `<strong>${formattedDateTime}</strong> - Intensité: <span style="font-weight: bold; color: var(--primary-color);">${entry.intensity}/10</span> ${entry.notes ? `<br><em>${Utils.escapeHtml(entry.notes)}</em>` : ''}`;
-                    return li;
-                 }
-
-                 function displayJournalHistory(entries) {
-                    const historyList = document.querySelector('#tracking-history ul');
-                    const loadingMsg = document.getElementById('history-loading');
-                    if (!historyList || !loadingMsg) return;
-                    historyList.innerHTML = '';
-                    if (!entries || entries.length === 0) {
-                        loadingMsg.textContent = "Votre journal est vide.";
-                        loadingMsg.style.display = 'block';
-                    } else {
-                         loadingMsg.style.display = 'none';
-                         entries.forEach(entry => {
-                            const li = renderJournalEntry(entry);
-                            if (li) historyList.appendChild(li);
-                         });
-                    }
-                 }
-
-                 function showToast(message, type = 'info', duration = 3000) {
-                    const toast = document.createElement('div');
-                    // Utiliser la classe CSS définie plus haut
-                    toast.className = `toast toast-${type}`;
-                    toast.textContent = message;
-                    document.body.appendChild(toast);
-                    requestAnimationFrame(() => {
-                        toast.classList.add('show'); // Déclenche l'animation d'entrée
-                    });
-                    setTimeout(() => {
-                        toast.classList.remove('show'); // Déclenche l'animation de sortie
-                        toast.addEventListener('transitionend', () => {
-                             if (toast.parentNode) { toast.parentNode.removeChild(toast); }
-                        }, { once: true });
-                    }, duration);
-                }
-
+                const uiElements = { mainContent: document.getElementById('main-content'), navLinks: document.querySelectorAll('#main-nav a[href^="#"]') };
+                function renderTemplate(templateId, context = {}) { const template = document.getElementById(templateId); if (!template) { console.error(`Template ${templateId} non trouvé`); uiElements.mainContent.innerHTML = `<section class="content-section"><p class="alert alert-danger">Erreur contenu page.</p></section>`; setActiveNavLink(''); return null; } try { const content = template.content.cloneNode(true); uiElements.mainContent.innerHTML = ''; uiElements.mainContent.appendChild(content); setActiveNavLink(templateId.replace('template-', '')); window.scrollTo({ top: 0, behavior: 'smooth' }); return uiElements.mainContent.firstChild; } catch (error) { console.error(`Erreur rendu ${templateId}:`, error); uiElements.mainContent.innerHTML = `<section class="content-section"><p class="alert alert-danger">Erreur affichage section.</p></section>`; setActiveNavLink(''); return null; } }
+                function setActiveNavLink(hash) { uiElements.navLinks.forEach(link => { link.classList.remove('active'); if (link.getAttribute('href') === `#${hash}`) link.classList.add('active'); }); }
+                function displayEvaluationResult(score, message) { const resultDiv = document.getElementById('evaluation-result'); if (resultDiv) { let alertClass = 'alert-success'; if (score >= 25) alertClass = 'alert-danger'; else if (score >= 15) alertClass = 'alert-warning'; resultDiv.innerHTML = `<div class="alert ${alertClass}"><strong>Résultat :</strong> ${Utils.escapeHtml(message)} (Score d'impact: ${score})</div>`; resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
+                function renderJournalEntry(entry) { const li = document.createElement('li'); const entryDate = new Date(entry.date); const formattedDateTime = entryDate.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }); li.innerHTML = `<strong>${formattedDateTime}</strong> - Intensité: <span style="font-weight: bold; color: var(--primary-color);">${entry.intensity}/10</span> ${entry.notes ? `<br><em>${Utils.escapeHtml(entry.notes)}</em>` : ''}`; return li; }
+                function displayJournalHistory(entries) { const historyList = document.querySelector('#tracking-history ul'); const loadingMsg = document.getElementById('history-loading'); if (!historyList || !loadingMsg) return; historyList.innerHTML = ''; if (!entries || entries.length === 0) { loadingMsg.textContent = "Journal vide."; loadingMsg.style.display = 'block'; } else { loadingMsg.style.display = 'none'; entries.forEach(entry => { const li = renderJournalEntry(entry); if (li) historyList.appendChild(li); }); } }
+                function showToast(message, type = 'info', duration = 3000) { const toast = document.createElement('div'); toast.className = `toast toast-${type}`; toast.textContent = message; document.body.appendChild(toast); requestAnimationFrame(() => { toast.classList.add('show'); }); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, { once: true }); }, duration); }
                 return { renderTemplate, setActiveNavLink, displayEvaluationResult, displayJournalHistory, showToast };
-            })();
+             })();
 
-
-            // --- MODULE: Audio (Web Audio API) ---
+            // --- MODULE: Audio (Web Audio API) - Correction Bruit Blanc v3 ---
             const AudioManager = (() => {
-                let audioContext;
-                let masterGainNode;
-                let currentNoiseSource = null;
-                let currentNoiseType = null;
-                let noiseTimer = null;
-
-                function getContext() {
-                    // ... (code getContext identique à la version précédente)
-                     if (!audioContext) {
-                        try {
-                           window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                           if (!window.AudioContext) { throw new Error("Web Audio API non supportée"); }
-                           audioContext = new AudioContext();
-                           masterGainNode = audioContext.createGain();
-                           masterGainNode.connect(audioContext.destination);
-                           console.log("AudioContext créé et prêt.");
-                        } catch(e) {
-                           console.error("Erreur AudioContext:", e);
-                           UI.showToast("Erreur: Audio non supporté.", "error", 5000);
-                           return null;
-                        }
-                    }
-                    if (audioContext.state === 'suspended') {
-                        audioContext.resume().catch(err => console.error("Erreur reprise AudioContext:", err));
-                    }
-                    return audioContext;
-                }
-                function initContextOnInteraction() {
-                    // ... (code initContextOnInteraction identique)
-                     const initAudio = () => {
-                         const context = getContext();
-                         if (context && context.state === 'running') {
-                             console.log("Contexte audio activé par interaction.");
-                             document.body.removeEventListener('click', initAudio, { capture: true });
-                             document.body.removeEventListener('touchstart', initAudio, { capture: true });
-                             document.body.removeEventListener('keydown', initAudio, { capture: true });
-                         }
-                     };
-                     document.body.addEventListener('click', initAudio, { once: true, capture: true });
-                     document.body.addEventListener('touchstart', initAudio, { once: true, capture: true });
-                     document.body.addEventListener('keydown', initAudio, { once: true, capture: true });
-                 }
-                 // --- Fonctions de création de bruit (identiques) ---
-                 function createWhiteNoiseSource(context) { /* ... identique ... */
-                    const bufferSize = context.sampleRate * 2;
-                    const noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
-                    const output = noiseBuffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
-                    const source = context.createBufferSource();
-                    source.buffer = noiseBuffer; source.loop = true; return source;
-                 }
-                 function createPinkNoiseSource(context) { /* ... identique ... */
-                    const whiteNoise = createWhiteNoiseSource(context);
-                    const pinkFilter = context.createBiquadFilter();
-                    pinkFilter.type = 'lowpass';
-                    pinkFilter.frequency.setValueAtTime(800, context.currentTime);
-                    pinkFilter.Q.setValueAtTime(0.707, context.currentTime);
-                    whiteNoise.connect(pinkFilter); return { source: whiteNoise, outputNode: pinkFilter };
-                 }
-                 function createBrownNoiseSource(context) { /* ... identique ... */
-                    const whiteNoise = createWhiteNoiseSource(context);
-                    const brownFilter = context.createBiquadFilter();
-                    brownFilter.type = 'lowpass';
-                    brownFilter.frequency.setValueAtTime(300, context.currentTime);
-                    brownFilter.Q.setValueAtTime(1, context.currentTime);
-                    whiteNoise.connect(brownFilter); return { source: whiteNoise, outputNode: brownFilter };
-                 }
+                let audioContext; let masterGainNode; let currentNoiseSource = null; let currentFilterNode = null; let currentNoiseType = null; let noiseTimer = null;
+                function getContext() { if (!audioContext) { try { window.AudioContext = window.AudioContext || window.webkitAudioContext; if (!window.AudioContext) throw new Error("Web Audio API non supportée"); audioContext = new AudioContext(); masterGainNode = audioContext.createGain(); masterGainNode.connect(audioContext.destination); console.log("AudioContext créé."); } catch(e) { console.error("Erreur AudioContext:", e); UI.showToast("Audio non supporté.", "error"); return null; } } if (audioContext.state === 'suspended') audioContext.resume().catch(err => console.error("Erreur reprise:", err)); return audioContext; }
+                function initContextOnInteraction() { const initAudio = () => { const context = getContext(); if (context && context.state === 'running') { console.log("Audio activé."); document.body.removeEventListener('click', initAudio, { capture: true }); document.body.removeEventListener('touchstart', initAudio, { capture: true }); document.body.removeEventListener('keydown', initAudio, { capture: true }); } else if (context) { console.warn(`AudioContext interaction state: ${context.state}`); } }; console.log("Ajout listeners init audio."); document.body.addEventListener('click', initAudio, { once: true, capture: true }); document.body.addEventListener('touchstart', initAudio, { once: true, capture: true }); document.body.addEventListener('keydown', initAudio, { once: true, capture: true }); }
+                function createWhiteNoiseSource(context) { console.log("[createWhiteNoiseSource] Début"); const bufferSize = context.sampleRate * 2; const buffer = context.createBuffer(1, bufferSize, context.sampleRate); const output = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1; const source = context.createBufferSource(); source.buffer = buffer; source.loop = true; console.log("[createWhiteNoiseSource] Source créée:", source); return source; }
+                function createPinkFilter(context) { console.log("[createPinkFilter] Début"); const filter = context.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(800, context.currentTime); filter.Q.setValueAtTime(0.707, context.currentTime); console.log("[createPinkFilter] Filtre créé:", filter); return filter; }
+                function createBrownFilter(context) { console.log("[createBrownFilter] Début"); const filter = context.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(300, context.currentTime); filter.Q.setValueAtTime(1, context.currentTime); console.log("[createBrownFilter] Filtre créé:", filter); return filter; }
 
                 function playNoise(type, volume, durationMinutes = 0) {
-                    stopNoise();
+                    console.log(`[playNoise] Début - Type: ${type}, Vol: ${volume}`);
+                    stopNoise(); // Nettoyage IMPÉRATIF avant de commencer
                     const context = getContext();
                     if (!context || context.state !== 'running') {
-                         UI.showToast("Cliquez sur la page pour activer l'audio.", "warning");
-                         console.warn("Contexte audio non prêt.");
-                         return false;
-                     }
-                    let noiseInfo;
-                    // ... (switch case identique)
-                     switch (type) {
-                        case 'white': noiseInfo = { source: createWhiteNoiseSource(context), outputNode: createWhiteNoiseSource(context) }; break; // Correction : utiliser la même source
-                        case 'pink': noiseInfo = createPinkNoiseSource(context); break;
-                        case 'brown': noiseInfo = createBrownNoiseSource(context); break;
-                        default: console.error(`Type bruit non supporté: ${type}`); UI.showToast(`Bruit inconnu: ${type}`, "error"); return false;
-                     }
-                    currentNoiseSource = noiseInfo.source; currentNoiseType = type;
-                    noiseInfo.outputNode.connect(masterGainNode);
-                    setVolume(volume);
-                    currentNoiseSource.start(0);
-                    console.log(`Bruit ${type} démarré (vol: ${volume.toFixed(2)})`);
-                    // Gestion minuteur (identique)
-                    if (durationMinutes > 0) {
-                         const durationSeconds = durationMinutes * 60;
-                         console.log(`Minuteur arrêt réglé sur ${durationMinutes} min.`);
-                         noiseTimer = setTimeout(() => {
-                             console.log("Minuteur arrêt atteint."); stopNoise(); UI.showToast("Son arrêté (minuteur).", "info");
-                             document.dispatchEvent(new CustomEvent('audiotimerend'));
-                         }, durationSeconds * 1000);
-                         document.dispatchEvent(new CustomEvent('audiotimerstart', { detail: { durationMinutes } }));
-                     } else { document.dispatchEvent(new CustomEvent('audiotimerclear')); }
-                     return true;
+                        if (context && context.state === 'suspended') { context.resume().then(() => playNoise(type, volume, durationMinutes)).catch(err => { UI.showToast("Activez l'audio (clic?).", "warning"); console.error("[playNoise] Échec reprise:", err); }); }
+                        else { UI.showToast("Audio non prêt (cliquez?).", "warning"); console.warn(`Contexte audio: ${context?.state}`); }
+                        return false;
+                    }
+
+                    console.log(`[playNoise] Contexte OK. Type: ${type}`);
+                    try {
+                        currentNoiseSource = null; currentFilterNode = null; // Reset
+                        currentNoiseType = type;
+
+                        const whiteSource = createWhiteNoiseSource(context);
+                        currentNoiseSource = whiteSource; // Assigner à la variable globale
+
+                        let nodeToConnect = whiteSource; // Par défaut: connexion directe
+
+                        if (type === 'pink') {
+                            console.log("[playNoise] Création et connexion filtre ROSE");
+                            currentFilterNode = createPinkFilter(context);
+                            whiteSource.connect(currentFilterNode); nodeToConnect = currentFilterNode;
+                        } else if (type === 'brown') {
+                            console.log("[playNoise] Création et connexion filtre BRUN");
+                            currentFilterNode = createBrownFilter(context);
+                            whiteSource.connect(currentFilterNode); nodeToConnect = currentFilterNode;
+                        } else { console.log("[playNoise] Type BLANC, connexion directe Source -> Gain"); }
+
+                        console.log(`[playNoise] Connexion de ${nodeToConnect.constructor.name} au masterGain...`);
+                        nodeToConnect.connect(masterGainNode);
+                        console.log("[playNoise] Connexion au masterGain OK.");
+
+                        setVolume(volume);
+                        console.log(`[playNoise] Démarrage source (${currentNoiseSource.constructor.name})...`);
+                        currentNoiseSource.start(0);
+                        console.log(`[playNoise] Bruit ${type} démarré avec succès.`);
+
+                        if (durationMinutes > 0) { const s = durationMinutes * 60; console.log(`[playNoise] Timer: ${durationMinutes} min.`); noiseTimer = setTimeout(() => { console.log("Timer atteint."); stopNoise(); UI.showToast("Son arrêté (timer).", "info"); document.dispatchEvent(new CustomEvent('audiotimerend')); }, s * 1000); document.dispatchEvent(new CustomEvent('audiotimerstart', { detail: { durationMinutes } })); } else { document.dispatchEvent(new CustomEvent('audiotimerclear')); }
+                        return true;
+
+                    } catch (error) { console.error(`[playNoise] ERREUR GLOBALE pour ${type}:`, error); UI.showToast(`Erreur lecture audio (${type}).`, "error"); stopNoise(); return false; }
                 }
 
                 function stopNoise() {
-                    // ... (code stopNoise identique)
-                     if (noiseTimer) { clearTimeout(noiseTimer); noiseTimer = null; document.dispatchEvent(new CustomEvent('audiotimerclear')); console.log("Minuteur arrêt annulé."); }
-                     if (currentNoiseSource) {
-                         try { currentNoiseSource.disconnect(); currentNoiseSource.stop(0); } catch (e) {}
-                         const stoppedType = currentNoiseType; currentNoiseSource = null; currentNoiseType = null;
-                         console.log(`Bruit ${stoppedType} arrêté.`); return true;
-                     } return false;
+                    console.log(`[stopNoise] Arrêt demandé pour type ${currentNoiseType}...`);
+                    if (noiseTimer) { clearTimeout(noiseTimer); noiseTimer = null; document.dispatchEvent(new CustomEvent('audiotimerclear')); console.log("[stopNoise] Timer annulé."); }
+                    let stoppedSomething = false;
+                    if (currentFilterNode) { try { console.log("[stopNoise] Déconnexion Filtre -> MasterGain"); currentFilterNode.disconnect(masterGainNode); } catch(e) {console.warn("[stopNoise] Erreur déco filtre:", e)} }
+                    if (currentNoiseSource) { try { console.log("[stopNoise] Arrêt et déconnexion Source..."); currentNoiseSource.stop(0); currentNoiseSource.disconnect(); stoppedSomething = true; console.log("[stopNoise] Source arrêtée et déconnectée."); } catch (e) { console.warn("[stopNoise] Erreur arrêt/déco source:", e) } }
+                    if(stoppedSomething) console.log(`[stopNoise] Bruit ${currentNoiseType} arrêté.`);
+                    currentNoiseSource = null; currentFilterNode = null; currentNoiseType = null; return stoppedSomething;
                 }
 
-                function setVolume(volume) {
-                    // ... (code setVolume identique)
-                     volume = Math.max(0, Math.min(1, volume));
-                     if (masterGainNode && audioContext) { masterGainNode.gain.setTargetAtTime(volume, audioContext.currentTime, 0.015); }
-                }
+                function setVolume(volume) { volume = Math.max(0, Math.min(1, volume)); if (masterGainNode && audioContext) masterGainNode.gain.setTargetAtTime(volume, audioContext.currentTime, 0.015); }
                 function isPlaying() { return !!currentNoiseSource; }
-
-                return { initContextOnInteraction, playNoise, stopNoise, setVolume, isPlaying };
-            })();
+                return { initContextOnInteraction, playNoise, stopNoise, setVolume, isPlaying, getContext };
+             })();
 
             // --- MODULE: Synthèse Vocale (TTS) ---
             const TTSManager = (() => {
-                let synthesis = window.speechSynthesis;
-                let isSupported = false;
-                let currentUtterance = null;
-
-                function init() {
-                    if ('speechSynthesis' in window) {
-                        isSupported = true;
-                        console.log("TTS pris en charge.");
-                        // Tenter de charger les voix (peut être asynchrone)
-                         synthesis.getVoices(); // Appel initial
-                         if (synthesis.onvoiceschanged !== undefined) {
-                            synthesis.onvoiceschanged = () => console.log("Voix TTS chargées/mises à jour.");
-                         }
-                    } else {
-                        console.warn("TTS non pris en charge par ce navigateur.");
-                    }
-                }
-
+                let synthesis = window.speechSynthesis; let isSupported = false; let currentUtterance = null;
+                function init() { if ('speechSynthesis' in window) { isSupported = true; console.log("TTS supporté."); try { synthesis.getVoices(); } catch(e) { console.warn("Erreur accès voices:", e); } if (synthesis.onvoiceschanged !== undefined) synthesis.onvoiceschanged = () => console.log("Voix TTS màj."); } else { console.warn("TTS non supporté."); } }
                 function speak(text) {
-                    if (!isSupported || !text) return false;
-                    // Annuler la lecture précédente si elle existe
+                    const audioCtx = AudioManager.getContext();
+                    if (!audioCtx || audioCtx.state !== 'running') { console.warn("TTS speak ignoré: AudioContext non actif."); audioCtx?.resume().then(() => speak(text)).catch(err => { console.error("Échec reprise AudioContext pour TTS:", err); UI.showToast("Activez l'audio (clic?) pour la lecture vocale.", "warning"); }); return false; }
+                    if (!isSupported || !text) { console.warn("TTS speak ignoré: non supporté ou vide"); return false; }
                     cancel();
-
                     currentUtterance = new SpeechSynthesisUtterance(text);
-                    // Essayer de trouver une voix française
-                    const voices = synthesis.getVoices();
-                    let frVoice = voices.find(voice => voice.lang === 'fr-FR');
-                    // Si pas de FR-FR, chercher FR générique
-                    if (!frVoice) frVoice = voices.find(voice => voice.lang.startsWith('fr'));
-                    if (frVoice) {
-                        currentUtterance.voice = frVoice;
-                        // console.log("Voix française trouvée:", frVoice.name);
-                    } else {
-                         console.warn("Aucune voix française trouvée pour TTS, utilisation de la voix par défaut.");
-                    }
-                    currentUtterance.lang = 'fr-FR'; // Définir la langue de l'utterance
-                    currentUtterance.pitch = 1; // Normal
-                    currentUtterance.rate = 0.9; // Un peu plus lent pour l'hypnose
-
-                    // Gérer la fin de la lecture (pour savoir quand c'est fini)
-                    currentUtterance.onend = () => {
-                        // console.log("TTS terminé pour:", text.substring(0, 20) + "...");
-                        currentUtterance = null;
-                    };
-                    currentUtterance.onerror = (event) => {
-                        console.error('Erreur TTS:', event.error);
-                         UI.showToast("Erreur de lecture vocale.", "error");
-                        currentUtterance = null;
-                    };
-
-                    // Déclencher la lecture
-                    try {
-                       synthesis.speak(currentUtterance);
-                       return true;
-                    } catch (error) {
-                        console.error("Erreur lors de synthesis.speak:", error);
-                         UI.showToast("Impossible de démarrer la lecture vocale.", "error");
-                         return false;
-                    }
-                }
-
-                function cancel() {
-                    if (synthesis && synthesis.speaking) {
-                        synthesis.cancel();
-                        // console.log("TTS annulé.");
-                        currentUtterance = null;
-                    }
-                }
-
-                function isSpeaking() {
-                     return synthesis && synthesis.speaking;
-                }
-
-                // Initialiser dès que le module est défini
+                    const voices = synthesis.getVoices(); let frVoice = voices.find(v => v.lang === 'fr-FR') || voices.find(v => v.lang.startsWith('fr')); if (frVoice) currentUtterance.voice = frVoice; else console.warn("Voix FR non trouvée.");
+                    currentUtterance.lang = 'fr-FR'; currentUtterance.pitch = 1; currentUtterance.rate = 0.9;
+                    currentUtterance.onend = () => { currentUtterance = null; };
+                    currentUtterance.onerror = (e) => { console.error('Erreur TTS:', e.error); UI.showToast("Erreur lecture vocale.", "error"); currentUtterance = null; };
+                    try { synthesis.speak(currentUtterance); console.log("TTS: speaking..."); return true; }
+                    catch (e) { console.error("Erreur speak:", e); UI.showToast("Impossible démarrer lecture.", "error"); return false; }
+                 }
+                function cancel() { if (synthesis && synthesis.speaking) { synthesis.cancel(); console.log("TTS: cancelled"); currentUtterance = null; } }
+                function isSpeaking() { return synthesis && synthesis.speaking; }
                 init();
-
-                return {
-                    isSupported: () => isSupported,
-                    speak,
-                    cancel,
-                    isSpeaking
-                };
+                return { isSupported: () => isSupported, speak, cancel, isSpeaking };
             })();
 
+            // --- Déclaration Globale des Handlers ---
+            const pageHandlers = {}; // Déclarer l'objet ici
 
             // --- MODULE: Routage ---
             const Router = (() => {
-                // ... (code Router.handleRouteChange identique, appelle les init/cleanup) ...
-                let currentPageInitFunction = null;
-                let currentPageCleanupFunction = null;
+                let currentPageInitFunction = null; let currentPageCleanupFunction = null;
+                // Pas besoin de 'pageHandlers' ici, il est global
 
                 function handleRouteChange() {
                     const hash = window.location.hash || '#home'; let route = hash.substring(1);
-                    if (typeof currentPageCleanupFunction === 'function') { try { currentPageCleanupFunction(); } catch (e) { console.error("Erreur cleanup:", e); } currentPageCleanupFunction = null; }
-                    currentPageInitFunction = null;
-                    if (AudioManager.isPlaying()) { AudioManager.stopNoise(); UI.showToast("Son arrêté.", "info"); }
-                    if (TTSManager.isSpeaking()) { TTSManager.cancel(); console.log("TTS arrêté en changeant de page."); } // Arrêter TTS aussi
-
-                    const templateId = `template-${route}`;
-                    if (!document.getElementById(templateId)) { route = 'home'; window.location.hash = '#home'; }
-                    console.log(`Navigation vers: ${route}`);
+                    console.log(`Routing: Current hash is ${hash}`);
+                    if (typeof currentPageCleanupFunction === 'function') { try { currentPageCleanupFunction(); console.log(`Cleanup OK for previous page`); } catch (e) { console.error(`Erreur cleanup:`, e); } }
+                    currentPageCleanupFunction = null; currentPageInitFunction = null;
+                    if (AudioManager.isPlaying()) AudioManager.stopNoise(); if (TTSManager.isSpeaking()) TTSManager.cancel();
+                    const templateId = `template-${route}`; if (!document.getElementById(templateId)) { route = 'home'; window.location.hash = '#home'; }
+                    console.log(`Navigating to: ${route}`);
                     const renderedElement = UI.renderTemplate(`template-${route}`);
                     if (renderedElement) {
                         switch (route) {
@@ -1395,352 +1195,269 @@
                             case 'hypnose': currentPageInitFunction = initHypnosePage; currentPageCleanupFunction = cleanupHypnosePage; break;
                             case 'sounds': currentPageInitFunction = initSoundsPage; currentPageCleanupFunction = cleanupSoundsPage; break;
                             case 'tracking': currentPageInitFunction = initTrackingPage; currentPageCleanupFunction = cleanupTrackingPage; break;
-                            case 'resources': currentPageInitFunction = initResourcesPage; break;
-                            case 'home': default: currentPageInitFunction = initHomePage; break;
+                            case 'resources': currentPageInitFunction = initResourcesPage; currentPageCleanupFunction = cleanupResourcesPage; break;
+                            case 'home': default: currentPageInitFunction = initHomePage; currentPageCleanupFunction = cleanupHomePage; break;
                         }
-                        if (typeof currentPageInitFunction === 'function') { try { currentPageInitFunction(); console.log(`Init ${route} OK.`); } catch(e) { console.error(`Erreur init ${route}:`, e); UI.showToast(`Erreur chargement section ${route}.`, "error"); } }
+                        if (typeof currentPageInitFunction === 'function') { try { currentPageInitFunction(); console.log(`Init ${route} OK.`); } catch(e) { console.error(`Erreur init ${route}:`, e); UI.showToast(`Erreur chargement ${route}.`, "error"); } }
+                        else { console.warn(`No init function found for route: ${route}`); }
                     }
-                }
-                function init() {
-                    window.addEventListener('hashchange', handleRouteChange);
-                    AudioManager.initContextOnInteraction();
-                    initThemeToggle();
-                    // Gérer le padding dynamique au chargement et au redimensionnement
-                    Utils.updateBodyPadding(); // Appel initial
-                     // Utiliser debounce pour optimiser l'appel sur resize
-                     window.addEventListener('resize', Utils.debounce(Utils.updateBodyPadding, 150));
-                    handleRouteChange(); // Gérer route initiale
-                }
+                 }
+                function init() { window.addEventListener('hashchange', handleRouteChange); AudioManager.initContextOnInteraction(); initThemeToggle(); Utils.updateBodyPadding(); window.addEventListener('resize', Utils.debounce(Utils.updateBodyPadding, 150)); handleRouteChange(); }
+                // Retourner UNIQUEMENT init
                 return { init };
             })();
 
             // --- Fonctions d'initialisation et de nettoyage spécifiques aux pages ---
 
-            function initHomePage() { /* Rien de spécifique */ }
-            function cleanupHomePage() { /* Rien de spécifique */ }
+            function initHomePage() { console.log("Init Home"); }
+            function cleanupHomePage() { console.log("Cleanup Home"); }
 
-            // Page d'évaluation (logique identique)
-             function initEvaluationPage() { /* ... identique ... */
-                const form = document.getElementById('evaluation-form'); const resultDiv = document.getElementById('evaluation-result'); const savedProfile = Store.getState().userProfile.initialAssessment;
-                if (form && savedProfile) { Object.keys(savedProfile).forEach(key => { /* ... préremplissage ... */ }); resultDiv.innerHTML = `<div class="alert alert-info">Infos chargées.</div>`; } else if (resultDiv) { resultDiv.innerHTML = ''; }
-                form?.addEventListener('submit', handleEvaluationSubmit);
+            function initEvaluationPage() {
+                console.log("Init Evaluation"); const form = document.getElementById('evaluation-form'); const resultDiv = document.getElementById('evaluation-result'); const savedProfile = Store.getState().userProfile.initialAssessment; if (form && savedProfile) { Object.keys(savedProfile).forEach(key => { const input = form.elements[key]; if (input) { if (input.type === 'radio') form.querySelectorAll(`input[name="${key}"]`).forEach(radio => { radio.checked = (radio.value === savedProfile[key]); }); else if (input.type === 'range') { input.value = savedProfile[key]; if (input.nextElementSibling?.tagName === 'OUTPUT') input.nextElementSibling.textContent = input.value; } else if (input.tagName === 'SELECT') input.value = savedProfile[key]; else input.value = savedProfile[key]; } }); resultDiv.innerHTML = `<div class="alert alert-info">Infos chargées.</div>`; } else if (resultDiv) resultDiv.innerHTML = '';
+                pageHandlers.evaluationSubmit = handleEvaluationSubmit; // Utilise pageHandlers global
+                form?.addEventListener('submit', pageHandlers.evaluationSubmit);
              }
-             function handleEvaluationSubmit(e) { /* ... identique ... */
-                e.preventDefault(); const form = e.target; const formData = new FormData(form); const data = {}; let score = 0; const impactKeys = ['intensity-avg', 'impact-sleep', 'impact-concentration', 'impact-mood', 'impact-hearing'];
-                formData.forEach((value, key) => { data[key] = Utils.escapeHtml(value.trim()); if (impactKeys.includes(key)) { score += parseInt(value, 10) || 0; } });
-                console.log('Données évaluation:', data, 'Score:', score); Store.updateProfile(data);
-                let message = "Évaluation enregistrée. "; if (score >= 25) { message += "Impact significatif."; } else if (score >= 15) { message += "Impact modéré."; } else { message += "Impact léger."; }
-                UI.displayEvaluationResult(score, message); UI.showToast("Évaluation enregistrée !", "success");
-             }
-            function cleanupEvaluationPage() { /* ... identique ... */
-                const form = document.getElementById('evaluation-form'); form?.removeEventListener('submit', handleEvaluationSubmit); console.log("Cleanup Évaluation");
-            }
+            function handleEvaluationSubmit(e) { e.preventDefault(); const form = e.target; const formData = new FormData(form); const data = {}; let score = 0; const impactKeys = ['intensity-avg', 'impact-sleep', 'impact-concentration', 'impact-mood', 'impact-hearing']; formData.forEach((value, key) => { data[key] = Utils.escapeHtml(value.trim()); if (impactKeys.includes(key)) score += parseInt(value, 10) || 0; }); console.log('Eval:', data, 'Score:', score); Store.updateProfile(data); let msg = "Éval enregistrée. "; if (score >= 25) msg += "Impact significatif."; else if (score >= 15) msg += "Impact modéré."; else msg += "Impact léger."; UI.displayEvaluationResult(score, msg); UI.showToast("Éval enregistrée !", "success"); }
+            function cleanupEvaluationPage() { const form = document.getElementById('evaluation-form'); if(form && pageHandlers.evaluationSubmit) form.removeEventListener('submit', pageHandlers.evaluationSubmit); delete pageHandlers.evaluationSubmit; console.log("Cleanup Éval"); }
 
-            // Page d'Auto-Hypnose (logique mise à jour pour TTS)
-             let hypnoTimerInterval = null;
-             let hypnoSessionEndTime = 0;
-             let hypnoCurrentSessionData = null;
-             let hypnoNoiseType = 'none';
-             let hypnoVolume = 0.05;
-             let hypnoSessionCompleted = false;
-             let hypnoTtsEnabled = false; // État local du TTS pour la session
-             const sessionsData = { /* ... Contenu sessions identique ... */ };
+            // Page d'Auto-Hypnose
+             let hypnoTimerInterval = null; let hypnoSessionEndTime = 0; let hypnoCurrentSessionData = null;
+             let hypnoNoiseType = 'none'; let hypnoVolume = 0.05; let hypnoSessionCompleted = false; let hypnoTtsEnabled = false;
+             const sessionsData = {
+                debutant: { title: "Débutant (env. 10 min) - Relaxation et Prise de Conscience", duration: 600, script: [ { time: 0, text: "Commencez par trouver une position confortable, assise ou allongée, où vous ne serez pas dérangé. Fermez doucement les yeux ou fixez un point devant vous sans effort." }, { time: 20, text: "Prenez maintenant trois respirations profondes et calmes. Inspirez par le nez en gonflant le ventre... et expirez lentement par la bouche, en relâchant les tensions..." }, { time: 45, text: "Répétez encore deux fois à votre rythme... Sentez votre corps commencer à se détendre à chaque expiration..." }, { time: 75, text: "Portez maintenant votre attention sur les sensations de votre corps. Ressentez le contact de vos pieds avec le sol ou le support... le poids de votre corps..." }, { time: 120, text: "Scannez mentalement votre corps, des pieds à la tête. Remarquez simplement les sensations, sans jugement. S'il y a des tensions, imaginez qu'elles se relâchent à chaque expiration..." }, { time: 180, text: "Portez maintenant votre attention sur votre respiration naturelle. Observez le va-et-vient de l'air, sans chercher à la contrôler... C'est votre point d'ancrage dans le moment présent..." }, { time: 240, text: "Les pensées peuvent venir, c'est normal. Laissez-les passer comme des nuages dans le ciel, sans vous y accrocher, et revenez doucement à la sensation de votre respiration..." }, { time: 300, text: "Maintenant, portez une attention douce et curieuse aux sons autour de vous... Ceux de la pièce... ceux de l'extérieur... Accueillez-les sans jugement..." }, { time: 360, text: "Remarquez aussi la présence de votre acouphène, s'il est là. Essayez de le percevoir comme un son parmi d'autres, sans lui donner plus d'importance. Juste une sensation sonore..." }, { time: 420, text: "Imaginez que vous pouvez créer un espace mental autour de ce son. Il est là, mais il y a aussi de l'espace, du calme autour..." }, { time: 480, text: "Revenez à la sensation globale de votre corps détendu... Appréciez ce moment de calme intérieur..." }, { time: 540, text: "Sachez que vous pouvez retrouver cet état de calme quand vous le souhaitez. C'est une capacité en vous." }, { time: 570, text: "Dans quelques instants, cette session va se terminer. Commencez à reprendre conscience de votre environnement... Bougez doucement les doigts, les orteils..." }, { time: 590, text: "Quand vous serez prêt, à votre rythme, ouvrez les yeux en gardant avec vous cette sensation de calme. Étirez-vous si vous le souhaitez." } ] },
+                 intermediaire: { title: "Intermédiaire (env. 15 min) - Détournement de l'Attention", duration: 900, script: [ { time: 0, text: "Installez-vous confortablement, fermez les yeux. Prenez quelques respirations profondes pour signaler à votre corps qu'il peut se détendre." }, { time: 30, text: "Imaginez une lumière douce et apaisante au sommet de votre tête. Sentez sa chaleur et sa détente descendre lentement... sur votre front... vos yeux... vos mâchoires qui se desserrent..." }, { time: 60, text: "Cette vague de détente descend dans votre cou, vos épaules... le long de vos bras jusqu'au bout de vos doigts... Sentez la lourdeur agréable de la relaxation..." }, { time: 120, text: "Elle continue dans votre poitrine, votre ventre... votre dos se relâche... Sentez votre respiration devenir plus calme, plus profonde..." }, { time: 180, text: "La détente atteint vos jambes... vos genoux... vos mollets... jusqu'à vos pieds. Tout votre corps est maintenant agréablement lourd et détendu." }, { time: 240, text: "Maintenant, portez votre attention sur votre ouïe. Écoutez les sons autour de vous... sans les analyser, juste les percevoir..." }, { time: 300, text: "Peut-être entendez-vous votre acouphène. Accueillez-le un instant, sans jugement. Puis, choisissez consciemment de porter votre attention ailleurs." }, { time: 360, text: "Imaginez que vous êtes dans un endroit que vous aimez, un lieu paisible. Une plage, une forêt, un jardin... Visualisez cet endroit avec le plus de détails possible." }, { time: 420, text: "Quelles sont les couleurs ? Les formes ? Y a-t-il une odeur particulière ? Une brise légère sur votre peau ?" }, { time: 480, text: "Quels sont les sons agréables de cet endroit ? Le bruit des vagues ? Le chant des oiseaux ? Le vent dans les feuilles ? Concentrez-vous sur ces sons imaginaires apaisants." }, { time: 540, text: "Si votre attention revient à l'acouphène, c'est normal. Remarquez-le simplement, puis redirigez doucement mais fermement votre attention vers les sons agréables de votre lieu paisible." }, { time: 660, text: "Imaginez que vous pouvez ajuster le volume des sons. Augmentez le volume des sons agréables... et diminuez mentalement le volume de l'acouphène, le rendant plus lointain, moins pertinent." }, { time: 780, text: "Restez dans cet état d'absorption agréable, en vous concentrant sur les sensations positives de votre lieu de calme." }, { time: 840, text: "Sachez que votre capacité à diriger votre attention est une compétence puissante que vous pouvez entraîner." }, { time: 870, text: "Préparez-vous maintenant à revenir. Ramenez progressivement votre conscience à votre corps, à la pièce où vous êtes. Prenez une respiration plus profonde." }, { time: 890, text: "Bougez doucement, étirez-vous, et ouvrez les yeux quand vous êtes prêt, en emportant avec vous le calme et la capacité à choisir votre focus." } ] },
+                 avance: { title: "Avancé (env. 20 min) - Modification de la Perception", duration: 1200, script: [ { time: 0, text: "Installez-vous confortablement. Fermez les yeux et prenez quelques instants pour entrer dans un état de relaxation profonde, en utilisant la technique qui vous convient le mieux (respiration, scan corporel...)." }, { time: 60, text: "Une fois bien détendu, portez votre attention sur votre acouphène. Observez-le avec une curiosité détachée, comme un scientifique observe un phénomène." }, { time: 120, text: "Quelles sont ses caractéristiques ? Est-il aigu, grave ? Continu, pulsatile ? Est-il stable ou changeant ? Essayez de le décrire mentalement, sans jugement de valeur ('gênant', 'horrible')." }, { time: 180, text: "Imaginez maintenant que vous avez des 'cadrans de contrôle' mentaux pour ce son." }, { time: 240, text: "Visualisez un cadran pour le volume. Imaginez que vous tournez ce cadran très lentement vers le bas. Même si le son réel ne change pas, notez toute modification dans votre perception ou votre réaction émotionnelle." }, { time: 330, text: "Visualisez un cadran pour la 'tonalité' ou la 'qualité' du son. Imaginez que vous pouvez le rendre légèrement plus grave, ou plus doux, ou plus diffus. Jouez mentalement avec ces caractéristiques." }, { time: 420, text: "Imaginez un cadran pour la 'localisation'. Pouvez-vous mentalement déplacer le son ? Le rendre plus externe, plus lointain ? Le laisser flotter hors de votre tête ?" }, { time: 510, text: "Visualisez un cadran pour l''émotion' associée au son. Imaginez tourner ce cadran de 'gêne' ou 'anxiété' vers 'neutre' ou même 'acceptation'." }, { time: 600, text: "Maintenant, laissez les cadrans et portez votre attention sur une sensation agréable dans votre corps. Peut-être la chaleur de vos mains, la détente de vos épaules, ou le calme de votre respiration." }, { time: 690, text: "Amplifiez cette sensation agréable. Laissez-la grandir et se diffuser dans tout votre corps, créant un sentiment général de bien-être." }, { time: 780, text: "Imaginez que ce bien-être est comme une bulle protectrice autour de vous. L'acouphène peut être là, à l'extérieur ou à l'intérieur de la bulle, mais il ne perturbe pas le calme à l'intérieur." }, { time: 900, text: "L'acouphène est juste un son. Il n'a que le pouvoir que vous lui donnez. Vous apprenez à lui retirer ce pouvoir émotionnel." }, { time: 1020, text: "Ancrez cette sensation de contrôle et de calme en vous. Prenez une profonde inspiration et expirez lentement." }, { time: 1140, text: "Rappelez-vous que cette capacité à modifier votre perception s'affine avec la pratique régulière." }, { time: 1170, text: "Commencez maintenant à revenir progressivement à votre état de conscience habituel. Sentez l'énergie revenir dans votre corps. Bougez les doigts, les orteils." }, { time: 1190, text: "Quand vous êtes prêt, ouvrez les yeux, en gardant ce sentiment de perspective et de calme intérieur renouvelé." } ] }
+             };
 
             function updateHypnoTimer() {
-                 const now = Date.now();
-                 const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
-                 const timerDisplay = document.querySelector('#hypnose-session .timer');
-                 const textContent = document.getElementById('session-text-content');
-                 const stepIndicator = document.getElementById('session-step-indicator');
-                 let newTextDisplayed = false; // Flag pour savoir si on a changé le texte
-
-                 if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
-
-                 if (hypnoCurrentSessionData && textContent) {
-                     const elapsed = hypnoCurrentSessionData.duration - remaining;
-                     const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
-                     const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
-
-                     if (currentStep) {
-                         const currentTextElement = textContent.querySelector('p');
-                         // Comparer avec le texte brut, pas le HTML échappé
-                         const displayedText = currentTextElement ? currentTextElement.dataset.rawText : null;
-
-                         if (!displayedText || displayedText !== currentStep.text) {
-                             textContent.innerHTML = `<p data-raw-text="${Utils.escapeHtml(currentStep.text)}">${Utils.escapeHtml(currentStep.text)}</p>`; // Stocker texte brut dans data attribute
-                             textContent.scrollTop = textContent.scrollHeight;
-                             newTextDisplayed = true; // On a changé le texte affiché
-
-                             // --- Déclenchement TTS ---
-                             if (hypnoTtsEnabled && TTSManager.isSupported()) {
-                                 TTSManager.speak(currentStep.text); // Lire le nouveau texte
-                             }
-                             // -------------------------
-                         }
-                         if (stepIndicator) {
-                             const totalSteps = hypnoCurrentSessionData.script.length;
-                             const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex;
-                             stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`;
-                         }
-                     }
-                 }
-
-                 if (remaining === 0) {
-                     hypnoSessionCompleted = true;
-                     stopHypnoSession();
-                 }
-             }
-
-            function startHypnoSession(sessionKey) {
-                 hypnoCurrentSessionData = sessionsData[sessionKey];
-                 if (!hypnoCurrentSessionData) { UI.showToast("Erreur chargement session.", "error"); return; }
-
-                 const menu = document.getElementById('hypnose-menu');
-                 const sessionView = document.getElementById('hypnose-session');
-                 const startBtn = document.getElementById('start-session-btn');
-                 const stopBtn = document.getElementById('stop-session-btn');
-                 const timerDisplay = sessionView?.querySelector('.timer');
-                 const sessionTextContent = document.getElementById('session-text-content');
-                 const stepIndicator = document.getElementById('session-step-indicator');
-                 const noiseSelect = document.getElementById('hypno-noise');
-                 const volumeSlider = document.getElementById('hypno-volume');
-                 const ttsToggle = document.getElementById('hypno-tts-enable');
-
-                 // Récupérer options
-                 hypnoNoiseType = noiseSelect.value;
-                 hypnoVolume = parseFloat(volumeSlider.value);
-                 hypnoTtsEnabled = ttsToggle.checked; // Lire l'état du toggle
-
-                 hypnoSessionCompleted = false;
-                 sessionTextContent.innerHTML = `<p data-raw-text="${Utils.escapeHtml(hypnoCurrentSessionData.script[0]?.text || '')}">${Utils.escapeHtml(hypnoCurrentSessionData.script[0]?.text || 'Préparation...')}</p>`;
-                 stepIndicator.textContent = `Étape 1 / ${hypnoCurrentSessionData.script.length}`;
-                 timerDisplay.textContent = Utils.formatTime(hypnoCurrentSessionData.duration);
-
-                 menu.classList.add('hidden');
-                 sessionView.classList.remove('hidden');
-                 startBtn.classList.add('hidden');
-                 stopBtn.classList.remove('hidden');
-                 noiseSelect.disabled = true;
-                 volumeSlider.disabled = true;
-                 ttsToggle.disabled = true; // Désactiver aussi pendant la session
-
-                 if (hypnoNoiseType !== 'none') AudioManager.playNoise(hypnoNoiseType, hypnoVolume);
-                 else AudioManager.stopNoise();
-
-                 // Démarrer TTS si activé (pour la première étape)
-                 if (hypnoTtsEnabled && TTSManager.isSupported() && hypnoCurrentSessionData.script[0]) {
-                     TTSManager.speak(hypnoCurrentSessionData.script[0].text);
-                 }
-
-                 hypnoSessionEndTime = Date.now() + hypnoCurrentSessionData.duration * 1000;
-                 updateHypnoTimer();
-                 hypnoTimerInterval = setInterval(updateHypnoTimer, 1000);
-
-                 console.log(`Session hypnose démarrée: ${sessionKey}, TTS: ${hypnoTtsEnabled}`);
-                 UI.showToast(`Session "${hypnoCurrentSessionData.title}" démarrée.`, "info");
-             }
-
-             function stopHypnoSession() {
-                 const sessionEndedNaturally = hypnoSessionCompleted;
-                 clearInterval(hypnoTimerInterval); hypnoTimerInterval = null;
-                 AudioManager.stopNoise();
-                 TTSManager.cancel(); // Arrêter la lecture vocale
-
-                 if (hypnoCurrentSessionData) { Store.addSessionLog({ sessionKey: Object.keys(sessionsData).find(key => sessionsData[key] === hypnoCurrentSessionData), duration: hypnoCurrentSessionData.duration, completed: sessionEndedNaturally }); console.log(`Session ${sessionEndedNaturally ? 'terminée' : 'arrêtée'}`); }
-
-                 const menu = document.getElementById('hypnose-menu');
-                 const sessionView = document.getElementById('hypnose-session');
-                 const startBtn = document.getElementById('start-session-btn');
-                 const stopBtn = document.getElementById('stop-session-btn');
-                 const noiseSelect = document.getElementById('hypno-noise');
-                 const volumeSlider = document.getElementById('hypno-volume');
-                 const ttsToggle = document.getElementById('hypno-tts-enable');
-
-                 if (sessionView) sessionView.classList.add('hidden');
-                 if (menu) menu.classList.remove('hidden');
-                 if (stopBtn) stopBtn.classList.add('hidden');
-                 if (startBtn) { startBtn.classList.remove('hidden'); startBtn.textContent = "Sélectionnez une session"; startBtn.disabled = true; startBtn.onclick = null; }
-                 if (noiseSelect) noiseSelect.disabled = false;
-                 if (volumeSlider) volumeSlider.disabled = false;
-                 if (ttsToggle) ttsToggle.disabled = !TTSManager.isSupported(); // Réactiver si supporté
-
-                 if (sessionEndedNaturally) UI.showToast("Session terminée !", "success");
-                 else UI.showToast("Session arrêtée.", "warning");
-                 hypnoCurrentSessionData = null; hypnoSessionCompleted = false;
-             }
-
-            function initHypnosePage() {
-                 const menu = document.getElementById('hypnose-menu');
-                 const sessionView = document.getElementById('hypnose-session');
-                 const startBtn = document.getElementById('start-session-btn');
-                 const stopBtn = document.getElementById('stop-session-btn');
-                 const ttsToggle = document.getElementById('hypno-tts-enable');
-                 const ttsStatus = document.getElementById('tts-status');
-
-                 // État initial UI
-                 if (menu) menu.classList.remove('hidden');
-                 if (sessionView) sessionView.classList.add('hidden');
-                 if (startBtn) { startBtn.textContent = "Sélectionnez une session"; startBtn.disabled = true; startBtn.classList.remove('hidden'); }
-                 if (stopBtn) stopBtn.classList.add('hidden');
-
-                 // Configurer le toggle TTS
-                 if (ttsToggle && ttsStatus) {
-                     if (TTSManager.isSupported()) {
-                         ttsToggle.checked = Store.getTtsPreference(); // Charger préférence
-                         ttsToggle.disabled = false;
-                         ttsStatus.textContent = ''; // Pas besoin de message si supporté
-                         ttsToggle.addEventListener('change', handleTtsToggleChange);
-                     } else {
-                         ttsToggle.checked = false;
-                         ttsToggle.disabled = true;
-                         ttsStatus.textContent = '(Lecture vocale non supportée par votre navigateur)';
-                     }
-                 }
-
-                 menu?.addEventListener('click', handleHypnoMenuClick);
-                 stopBtn?.addEventListener('click', stopHypnoSession);
-             }
-             function handleHypnoMenuClick(e) { /* ... (Logique identique pour préparer la session) ... */
-                if (e.target.tagName === 'BUTTON' && e.target.dataset.session) {
-                     const sessionKey = e.target.dataset.session; const sessionData = sessionsData[sessionKey]; if (!sessionData) return;
-                     const startBtn = document.getElementById('start-session-btn'); const sessionTitle = document.getElementById('session-title'); const sessionView = document.getElementById('hypnose-session'); const timerDisplay = sessionView?.querySelector('.timer'); const sessionTextContent = document.getElementById('session-text-content'); const stepIndicator = document.getElementById('session-step-indicator');
-                     if (sessionTitle) sessionTitle.textContent = sessionData.title + " (Prêt)";
-                     if (timerDisplay) timerDisplay.textContent = Utils.formatTime(sessionData.duration);
-                     if (sessionTextContent) sessionTextContent.innerHTML = `<p>Préparez-vous. Cliquez sur "Démarrer".</p>`;
-                     if (stepIndicator) stepIndicator.textContent = `Durée: ${Math.round(sessionData.duration / 60)} min`;
-                     if (startBtn) { startBtn.textContent = `Démarrer la session`; startBtn.onclick = () => startHypnoSession(sessionKey); startBtn.disabled = false; }
-                     if (sessionView) sessionView.classList.remove('hidden');
-                     document.getElementById('stop-session-btn')?.classList.add('hidden');
-                     // Réactiver contrôles (si désactivés avant)
-                     const ttsToggle = document.getElementById('hypno-tts-enable');
-                      document.getElementById('hypno-noise').disabled = false; document.getElementById('hypno-volume').disabled = false;
-                      if (ttsToggle) ttsToggle.disabled = !TTSManager.isSupported();
-                     sessionView.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                 }
-             }
-             function handleTtsToggleChange(e) {
-                 const isEnabled = e.target.checked;
-                 Store.setTtsPreference(isEnabled); // Sauver la préférence
-                 hypnoTtsEnabled = isEnabled; // Mettre à jour l'état local (sera utilisé au démarrage)
-                 console.log("Préférence TTS mise à jour:", isEnabled);
-             }
-            function cleanupHypnosePage() {
-                 if (hypnoTimerInterval) { stopHypnoSession(); console.warn("Session hypnose arrêtée (quitté section)."); }
-                 const menu = document.getElementById('hypnose-menu');
-                 const stopBtn = document.getElementById('stop-session-btn');
-                 const ttsToggle = document.getElementById('hypno-tts-enable');
-                 const startBtn = document.getElementById('start-session-btn');
-                 menu?.removeEventListener('click', handleHypnoMenuClick);
-                 stopBtn?.removeEventListener('click', stopHypnoSession);
-                 ttsToggle?.removeEventListener('change', handleTtsToggleChange);
-                 if(startBtn) startBtn.onclick = null;
-                 console.log("Cleanup Hypnose");
+                const now = Date.now(); const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
+                const timerDisplay = document.querySelector('#hypnose-session .timer');
+                const textContent = document.getElementById('session-text-content');
+                const stepIndicator = document.getElementById('session-step-indicator');
+                if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
+                if (hypnoCurrentSessionData && textContent) {
+                    const elapsed = hypnoCurrentSessionData.duration - remaining;
+                    const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
+                    const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
+                    if (currentStep) {
+                        const currentTextElement = textContent.querySelector('p');
+                        const displayedTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null;
+                        const currentStepTextEscaped = Utils.escapeHtml(currentStep.text);
+                        if (!displayedTextEscaped || displayedTextEscaped !== currentStepTextEscaped) {
+                            textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
+                            textContent.scrollTop = textContent.scrollHeight;
+                            if (hypnoTtsEnabled && TTSManager.isSupported()) { TTSManager.speak(currentStep.text); } // Speak raw text
+                        }
+                        if (stepIndicator) { const totalSteps = hypnoCurrentSessionData.script.length; const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex; stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`; }
+                    }
+                }
+                if (remaining <= 0) { console.log("Hypno timer 0."); hypnoSessionCompleted = true; stopHypnoSession(); }
             }
 
-            // Page Générateur de Sons (logique identique)
-             let soundTimerInterval = null; let soundTimerEndTime = 0;
-             function updateSoundTimerDisplay() { /* ... identique ... */
-                const statusSpan = document.getElementById('sound-timer-status'); if (!statusSpan || !AudioManager.isPlaying() || !noiseTimer) { if (statusSpan) statusSpan.textContent = ''; clearInterval(soundTimerInterval); soundTimerInterval = null; return; }
-                const now = Date.now(); const remainingSeconds = Math.max(0, Math.round((soundTimerEndTime - now) / 1000));
-                if (remainingSeconds > 0) { statusSpan.textContent = `Arrêt dans: ${Utils.formatTime(remainingSeconds)}`; } else { statusSpan.textContent = ''; clearInterval(soundTimerInterval); soundTimerInterval = null; }
-             }
-             function initSoundsPage() { /* ... identique ... */
-                const playBtn = document.getElementById('play-sound-btn'); const stopBtn = document.getElementById('stop-sound-btn'); const volumeSlider = document.getElementById('sound-volume'); const volumeOutput = volumeSlider?.nextElementSibling;
-                const updateVolumeOutputDisplay = () => { if (volumeSlider && volumeOutput) volumeOutput.textContent = parseFloat(volumeSlider.value).toFixed(2); }
-                playBtn?.addEventListener('click', handlePlaySound); stopBtn?.addEventListener('click', handleStopSound); volumeSlider?.addEventListener('input', handleSoundVolumeInput); volumeSlider?.addEventListener('change', handleSoundVolumeChange);
-                updateVolumeOutputDisplay(); stopBtn?.classList.add('hidden'); playBtn?.classList.remove('hidden');
-                document.addEventListener('audiotimerstart', handleAudioTimerStart); document.addEventListener('audiotimerend', handleAudioTimerEnd); document.addEventListener('audiotimerclear', handleAudioTimerClear);
-             }
-             function handlePlaySound() { /* ... identique ... */
-                const type = document.getElementById('sound-type-select').value; const volume = parseFloat(document.getElementById('sound-volume').value); const durationMinutes = parseInt(document.getElementById('sound-timer').value, 10) || 0;
-                const success = AudioManager.playNoise(type, volume, durationMinutes);
-                if (success) { document.getElementById('play-sound-btn')?.classList.add('hidden'); document.getElementById('stop-sound-btn')?.classList.remove('hidden'); document.getElementById('sound-type-select').disabled = true; document.getElementById('sound-timer').disabled = true; }
-             }
-             function handleStopSound() { /* ... identique ... */
-                const stopped = AudioManager.stopNoise();
-                if (stopped) { document.getElementById('play-sound-btn')?.classList.remove('hidden'); document.getElementById('stop-sound-btn')?.classList.add('hidden'); document.getElementById('sound-type-select').disabled = false; document.getElementById('sound-timer').disabled = false; document.getElementById('sound-timer-status').textContent = ''; if (soundTimerInterval) clearInterval(soundTimerInterval); soundTimerInterval = null; }
-             }
-             function handleSoundVolumeInput(e) { /* ... identique ... */
-                 const volumeOutput = e.target.nextElementSibling; if (volumeOutput) volumeOutput.textContent = parseFloat(e.target.value).toFixed(2); if (AudioManager.isPlaying()) AudioManager.setVolume(parseFloat(e.target.value));
-             }
-             function handleSoundVolumeChange(e) { AudioManager.setVolume(parseFloat(e.target.value)); }
-             function handleAudioTimerStart(e) { /* ... identique ... */
-                const durationMinutes = e.detail.durationMinutes; soundTimerEndTime = Date.now() + durationMinutes * 60 * 1000; if (soundTimerInterval) clearInterval(soundTimerInterval); updateSoundTimerDisplay(); soundTimerInterval = setInterval(updateSoundTimerDisplay, 1000);
-             }
-             function handleAudioTimerEnd() { handleStopSound(); }
-             function handleAudioTimerClear() { /* ... identique ... */
-                if (soundTimerInterval) clearInterval(soundTimerInterval); soundTimerInterval = null; const statusSpan = document.getElementById('sound-timer-status'); if (statusSpan) statusSpan.textContent = '';
-             }
-             function cleanupSoundsPage() { /* ... identique ... */
-                if (AudioManager.isPlaying()) handleStopSound();
-                const playBtn = document.getElementById('play-sound-btn'); const stopBtn = document.getElementById('stop-sound-btn'); const volumeSlider = document.getElementById('sound-volume');
-                playBtn?.removeEventListener('click', handlePlaySound); stopBtn?.removeEventListener('click', handleStopSound); volumeSlider?.removeEventListener('input', handleSoundVolumeInput); volumeSlider?.removeEventListener('change', handleSoundVolumeChange);
-                document.removeEventListener('audiotimerstart', handleAudioTimerStart); document.removeEventListener('audiotimerend', handleAudioTimerEnd); document.removeEventListener('audiotimerclear', handleAudioTimerClear);
-                if (soundTimerInterval) clearInterval(soundTimerInterval); soundTimerInterval = null; console.log("Cleanup Sons");
+            function startHypnoSession(sessionKey) {
+                console.log(`Starting session: ${sessionKey}`);
+                hypnoCurrentSessionData = sessionsData[sessionKey]; if (!hypnoCurrentSessionData) { UI.showToast("Erreur session.", "error"); return; }
+                const menu = document.getElementById('hypnose-menu'); const sessionView = document.getElementById('hypnose-session'); const startBtn = document.getElementById('start-session-btn'); const stopBtn = document.getElementById('stop-session-btn'); const timerDisplay = sessionView?.querySelector('.timer'); const sessionTextContent = document.getElementById('session-text-content'); const stepIndicator = document.getElementById('session-step-indicator'); const noiseSelect = document.getElementById('hypno-noise'); const volumeSlider = document.getElementById('hypno-volume'); const ttsToggle = document.getElementById('hypno-tts-enable');
+                hypnoNoiseType = noiseSelect.value; hypnoVolume = parseFloat(volumeSlider.value); hypnoTtsEnabled = ttsToggle.checked;
+                hypnoSessionCompleted = false;
+                const firstStepText = hypnoCurrentSessionData.script[0]?.text || 'Préparation...';
+                const firstStepTextEscaped = Utils.escapeHtml(firstStepText);
+                sessionTextContent.innerHTML = `<p data-raw-text="${firstStepTextEscaped}">${firstStepTextEscaped}</p>`;
+                stepIndicator.textContent = `Étape 1 / ${hypnoCurrentSessionData.script.length}`; timerDisplay.textContent = Utils.formatTime(hypnoCurrentSessionData.duration);
+                menu.classList.add('hidden'); sessionView.classList.remove('hidden'); startBtn.classList.add('hidden'); stopBtn.classList.remove('hidden'); noiseSelect.disabled = true; volumeSlider.disabled = true; ttsToggle.disabled = true;
+                console.log(`Audio: ${hypnoNoiseType} vol ${hypnoVolume}. TTS: ${hypnoTtsEnabled}`);
+                if (hypnoNoiseType !== 'none' && hypnoVolume > 0) { const audioStarted = AudioManager.playNoise(hypnoNoiseType, hypnoVolume); if (!audioStarted) UI.showToast("Problème audio.", "warning"); } else AudioManager.stopNoise();
+                if (hypnoTtsEnabled && TTSManager.isSupported() && hypnoCurrentSessionData.script[0]) { console.log("TTS speaking first step..."); TTSManager.speak(firstStepText); } // Speak raw text
+                hypnoSessionEndTime = Date.now() + hypnoCurrentSessionData.duration * 1000;
+                updateHypnoTimer(); if(hypnoTimerInterval) clearInterval(hypnoTimerInterval);
+                hypnoTimerInterval = setInterval(updateHypnoTimer, 500);
+                UI.showToast(`Session démarrée.`, "info");
+            }
+
+            function stopHypnoSession() {
+                console.log("Stopping hypno session."); const sessionEndedNaturally = hypnoSessionCompleted; if(hypnoTimerInterval) clearInterval(hypnoTimerInterval); hypnoTimerInterval = null; AudioManager.stopNoise(); TTSManager.cancel();
+                if (hypnoCurrentSessionData) { const sessionKey = Object.keys(sessionsData).find(key => sessionsData[key] === hypnoCurrentSessionData); if(sessionKey) { Store.addSessionLog({ sessionKey, duration: hypnoCurrentSessionData.duration, completed: sessionEndedNaturally }); console.log(`Session log: ${sessionEndedNaturally ? 'complète' : 'arrêtée'}`); } else { console.error("Could not find session key for logging.");} }
+                const menu = document.getElementById('hypnose-menu'); const sessionView = document.getElementById('hypnose-session'); const startBtn = document.getElementById('start-session-btn'); const stopBtn = document.getElementById('stop-session-btn'); const noiseSelect = document.getElementById('hypno-noise'); const volumeSlider = document.getElementById('hypno-volume'); const ttsToggle = document.getElementById('hypno-tts-enable');
+                if (sessionView) sessionView.classList.add('hidden'); if (menu) menu.classList.remove('hidden'); if (stopBtn) stopBtn.classList.add('hidden'); if (startBtn) { startBtn.classList.remove('hidden'); startBtn.textContent = "Sélectionnez une session"; startBtn.disabled = true; startBtn.onclick = null; }
+                if (noiseSelect) noiseSelect.disabled = false; if (volumeSlider) volumeSlider.disabled = false; if (ttsToggle) ttsToggle.disabled = !TTSManager.isSupported();
+                if (sessionEndedNaturally) UI.showToast("Session terminée !", "success"); else UI.showToast("Session arrêtée.", "warning");
+                hypnoCurrentSessionData = null; hypnoSessionCompleted = false;
+            }
+
+            function initHypnosePage() {
+                console.log("[Init Hypnose Page] Démarrage..."); const menu = document.getElementById('hypnose-menu'); const sessionView = document.getElementById('hypnose-session'); const startBtn = document.getElementById('start-session-btn'); const stopBtn = document.getElementById('stop-session-btn'); const ttsToggle = document.getElementById('hypno-tts-enable'); const ttsStatus = document.getElementById('tts-status');
+                if (menu) menu.classList.remove('hidden'); if (sessionView) sessionView.classList.add('hidden'); if (startBtn) { startBtn.textContent = "Sélectionnez une session"; startBtn.disabled = true; startBtn.classList.remove('hidden'); startBtn.onclick = null; } if (stopBtn) stopBtn.classList.add('hidden');
+                if (ttsToggle && ttsStatus) { const isTtsSupported = TTSManager.isSupported(); ttsToggle.disabled = !isTtsSupported; ttsStatus.textContent = isTtsSupported ? '' : '(Lecture vocale non supportée)'; if (isTtsSupported) { ttsToggle.checked = Store.getTtsPreference(); pageHandlers.ttsToggleChange = handleTtsToggleChange; ttsToggle.removeEventListener('change', pageHandlers.ttsToggleChange); ttsToggle.addEventListener('change', pageHandlers.ttsToggleChange); console.log("[Init Hypnose Page] Listener TTS attaché."); } else { ttsToggle.checked = false; } } else { console.warn("[Init Hypnose Page] Éléments TTS introuvables."); }
+                pageHandlers.hypnoMenuClick = handleHypnoMenuClick; pageHandlers.hypnoStopClick = stopHypnoSession;
+                menu?.removeEventListener('click', pageHandlers.hypnoMenuClick); menu?.addEventListener('click', pageHandlers.hypnoMenuClick);
+                stopBtn?.removeEventListener('click', pageHandlers.hypnoStopClick); stopBtn?.addEventListener('click', pageHandlers.hypnoStopClick);
+                console.log("[Init Hypnose Page] Initialisation terminée, listeners attachés.");
+            }
+
+            function handleHypnoMenuClick(e) {
+                 console.log("Menu click target:", e.target); if (e.target.tagName === 'BUTTON' && e.target.dataset.session) { const sessionKey = e.target.dataset.session; console.log(`Session selected: ${sessionKey}`); const sessionData = sessionsData[sessionKey]; if (!sessionData) { console.error("Session data not found!"); return; } const startBtn = document.getElementById('start-session-btn'); const sessionTitle = document.getElementById('session-title'); const sessionView = document.getElementById('hypnose-session'); const timerDisplay = sessionView?.querySelector('.timer'); const sessionTextContent = document.getElementById('session-text-content'); const stepIndicator = document.getElementById('session-step-indicator'); const ttsToggle = document.getElementById('hypno-tts-enable'); const noiseSelect = document.getElementById('hypno-noise'); const volumeSlider = document.getElementById('hypno-volume');
+                 if (sessionTitle) sessionTitle.textContent = sessionData.title + " (Prêt)"; if (timerDisplay) timerDisplay.textContent = Utils.formatTime(sessionData.duration); if (sessionTextContent) sessionTextContent.innerHTML = `<p>Préparez-vous. Cliquez sur "Démarrer".</p>`; if (stepIndicator) stepIndicator.textContent = `Durée: ${Math.round(sessionData.duration / 60)} min`;
+                 if (startBtn) { startBtn.textContent = `Démarrer la session`; startBtn.onclick = () => { console.log(`[Start Button onclick] Démarrage pour session: ${sessionKey}`); startHypnoSession(sessionKey); }; startBtn.disabled = false; console.log("Start btn prepared."); } else { console.error("Start button not found in DOM!"); }
+                 if (sessionView) sessionView.classList.remove('hidden'); document.getElementById('stop-session-btn')?.classList.add('hidden');
+                 if (noiseSelect) noiseSelect.disabled = false; if (volumeSlider) volumeSlider.disabled = false; if (ttsToggle) ttsToggle.disabled = !TTSManager.isSupported();
+                 sessionView?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else { /* console.log("Clicked non-session button in menu."); */ }
+            }
+            function handleTtsToggleChange(e) { const isEnabled = e.target.checked; Store.setTtsPreference(isEnabled); console.log("Pref TTS sauvegardée:", isEnabled); }
+            function cleanupHypnosePage() {
+                 console.log("[Cleanup Hypnose Page] Démarrage..."); if (hypnoTimerInterval) stopHypnoSession();
+                 const menu = document.getElementById('hypnose-menu'); const stopBtn = document.getElementById('stop-session-btn'); const ttsToggle = document.getElementById('hypno-tts-enable'); const startBtn = document.getElementById('start-session-btn');
+                 if(menu && pageHandlers.hypnoMenuClick) { menu.removeEventListener('click', pageHandlers.hypnoMenuClick); console.log("[Cleanup Hypnose Page] Listener menu retiré."); }
+                 if(stopBtn && pageHandlers.hypnoStopClick) { stopBtn.removeEventListener('click', pageHandlers.hypnoStopClick); console.log("[Cleanup Hypnose Page] Listener stop retiré."); }
+                 if(ttsToggle && pageHandlers.ttsToggleChange) { ttsToggle.removeEventListener('change', pageHandlers.ttsToggleChange); console.log("[Cleanup Hypnose Page] Listener TTS retiré."); }
+                 if(startBtn) startBtn.onclick = null;
+                 delete pageHandlers.hypnoMenuClick; delete pageHandlers.hypnoStopClick; delete pageHandlers.ttsToggleChange;
+                 console.log("[Cleanup Hypnose Page] Nettoyage terminé.");
+            }
+
+            // --- FIN Fonctions spécifiques Auto-Hypnose ---
+            // --- FIN Fonctions spécifiques Auto-Hypnose ---
+            // --- Page Générateur de Sons ---
+            let soundTimerInterval_page = null; let soundTimerEndTime_page = 0;
+            function updateSoundTimerDisplay_page() { const statusSpan = document.getElementById('sound-timer-status'); if (!statusSpan || !AudioManager.isPlaying() || !noiseTimer) { if (statusSpan) statusSpan.textContent = ''; clearInterval(soundTimerInterval_page); soundTimerInterval_page = null; return; } const now = Date.now(); const remainingSeconds = Math.max(0, Math.round((soundTimerEndTime_page - now) / 1000)); if (remainingSeconds > 0) statusSpan.textContent = `Arrêt dans: ${Utils.formatTime(remainingSeconds)}`; else { statusSpan.textContent = ''; clearInterval(soundTimerInterval_page); soundTimerInterval_page = null; } }
+
+            function initSoundsPage() {
+                console.log("Init Sounds");
+                const playBtn = document.getElementById('play-sound-btn');
+                const stopBtn = document.getElementById('stop-sound-btn');
+                const volumeSlider = document.getElementById('sound-volume');
+                const volumeOutput = volumeSlider?.nextElementSibling;
+                const updateVolumeOutputDisplay = () => { if (volumeSlider && volumeOutput) volumeOutput.textContent = parseFloat(volumeSlider.value).toFixed(2); };
+
+                // Stocker les handlers dans l'objet global pageHandlers
+                pageHandlers.soundPlay = handlePlaySound_page;
+                pageHandlers.soundStop = handleStopSound_page;
+                pageHandlers.soundVolumeInput = handleSoundVolumeInput_page;
+                pageHandlers.soundVolumeChange = handleSoundVolumeChange_page;
+                pageHandlers.audioTimerStart = handleAudioTimerStart_page;
+                pageHandlers.audioTimerEnd = handleAudioTimerEnd_page;
+                pageHandlers.audioTimerClear = handleAudioTimerClear_page;
+
+                // Nettoyer les listeners précédents au cas où (sécurité)
+                playBtn?.removeEventListener('click', pageHandlers.soundPlay);
+                stopBtn?.removeEventListener('click', pageHandlers.soundStop);
+                volumeSlider?.removeEventListener('input', pageHandlers.soundVolumeInput);
+                volumeSlider?.removeEventListener('change', pageHandlers.soundVolumeChange);
+                document.removeEventListener('audiotimerstart', pageHandlers.audioTimerStart);
+                document.removeEventListener('audiotimerend', pageHandlers.audioTimerEnd);
+                document.removeEventListener('audiotimerclear', pageHandlers.audioTimerClear);
+
+                // Attacher les nouveaux listeners
+                playBtn?.addEventListener('click', pageHandlers.soundPlay);
+                stopBtn?.addEventListener('click', pageHandlers.soundStop);
+                volumeSlider?.addEventListener('input', pageHandlers.soundVolumeInput);
+                volumeSlider?.addEventListener('change', pageHandlers.soundVolumeChange);
+                document.addEventListener('audiotimerstart', pageHandlers.audioTimerStart);
+                document.addEventListener('audiotimerend', pageHandlers.audioTimerEnd);
+                document.addEventListener('audiotimerclear', pageHandlers.audioTimerClear);
+
+                updateVolumeOutputDisplay();
+                stopBtn?.classList.add('hidden');
+                playBtn?.classList.remove('hidden');
+                console.log("Sounds page listeners attached.");
              }
 
-            // Page Suivi (logique identique, utilise Utils.escapeHtml)
-             function initTrackingPage() { /* ... identique ... */
+            function handlePlaySound_page() { const type = document.getElementById('sound-type-select').value; const volume = parseFloat(document.getElementById('sound-volume').value); const durationMinutes = parseInt(document.getElementById('sound-timer').value, 10) || 0; const success = AudioManager.playNoise(type, volume, durationMinutes); if (success) { document.getElementById('play-sound-btn')?.classList.add('hidden'); document.getElementById('stop-sound-btn')?.classList.remove('hidden'); document.getElementById('sound-type-select').disabled = true; document.getElementById('sound-timer').disabled = true; } }
+            function handleStopSound_page() { const stopped = AudioManager.stopNoise(); if (stopped) { document.getElementById('play-sound-btn')?.classList.remove('hidden'); document.getElementById('stop-sound-btn')?.classList.add('hidden'); document.getElementById('sound-type-select').disabled = false; document.getElementById('sound-timer').disabled = false; document.getElementById('sound-timer-status').textContent = ''; if (soundTimerInterval_page) clearInterval(soundTimerInterval_page); soundTimerInterval_page = null; } }
+            function handleSoundVolumeInput_page(e) { const volumeOutput = e.target.nextElementSibling; if (volumeOutput) volumeOutput.textContent = parseFloat(e.target.value).toFixed(2); if (AudioManager.isPlaying()) AudioManager.setVolume(parseFloat(e.target.value)); }
+            function handleSoundVolumeChange_page(e) { AudioManager.setVolume(parseFloat(e.target.value)); }
+            function handleAudioTimerStart_page(e) { const durationMinutes = e.detail.durationMinutes; soundTimerEndTime_page = Date.now() + durationMinutes * 60 * 1000; if (soundTimerInterval_page) clearInterval(soundTimerInterval_page); updateSoundTimerDisplay_page(); soundTimerInterval_page = setInterval(updateSoundTimerDisplay_page, 1000); }
+            function handleAudioTimerEnd_page() { handleStopSound_page(); } // Appelle la fonction qui gère l'UI
+            function handleAudioTimerClear_page() { if (soundTimerInterval_page) clearInterval(soundTimerInterval_page); soundTimerInterval_page = null; const statusSpan = document.getElementById('sound-timer-status'); if (statusSpan) statusSpan.textContent = ''; }
+
+            function cleanupSoundsPage() {
+                 console.log("Cleanup Sounds");
+                 if (AudioManager.isPlaying()) handleStopSound_page(); // Arrête le son et nettoie l'UI associée
+                 const playBtn = document.getElementById('play-sound-btn');
+                 const stopBtn = document.getElementById('stop-sound-btn');
+                 const volumeSlider = document.getElementById('sound-volume');
+
+                 // Retirer les listeners en utilisant les références stockées dans pageHandlers
+                 if(pageHandlers.soundPlay) playBtn?.removeEventListener('click', pageHandlers.soundPlay);
+                 if(pageHandlers.soundStop) stopBtn?.removeEventListener('click', pageHandlers.soundStop);
+                 if(pageHandlers.soundVolumeInput) volumeSlider?.removeEventListener('input', pageHandlers.soundVolumeInput);
+                 if(pageHandlers.soundVolumeChange) volumeSlider?.removeEventListener('change', pageHandlers.soundVolumeChange);
+                 if(pageHandlers.audioTimerStart) document.removeEventListener('audiotimerstart', pageHandlers.audioTimerStart);
+                 if(pageHandlers.audioTimerEnd) document.removeEventListener('audiotimerend', pageHandlers.audioTimerEnd);
+                 if(pageHandlers.audioTimerClear) document.removeEventListener('audiotimerclear', pageHandlers.audioTimerClear);
+
+                 // Supprimer les références stockées
+                 delete pageHandlers.soundPlay; delete pageHandlers.soundStop; delete pageHandlers.soundVolumeInput; delete pageHandlers.soundVolumeChange; delete pageHandlers.audioTimerStart; delete pageHandlers.audioTimerEnd; delete pageHandlers.audioTimerClear;
+
+                 // Assurer que le timer d'affichage est arrêté
+                 if (soundTimerInterval_page) clearInterval(soundTimerInterval_page);
+                 soundTimerInterval_page = null;
+                 console.log("Sounds page listeners removed.");
+             }
+
+            // --- Page Suivi ---
+            function initTrackingPage() {
+                console.log("Init Tracking");
+                const form = document.getElementById('tracking-form'); const clearDataBtn = document.getElementById('clear-data-btn'); const exportJsonBtn = document.getElementById('export-data-btn'); const exportCsvBtn = document.getElementById('export-csv-btn'); const historyLimitSelect = document.getElementById('history-limit'); const chartLimitSelect = document.getElementById('chart-limit');
+
+                // Stocker les handlers dans pageHandlers global
+                pageHandlers.trackingSubmit = handleTrackingSubmit;
+                pageHandlers.clearData = handleClearData;
+                pageHandlers.exportJson = handleExportJson;
+                pageHandlers.exportCsv = handleExportCsv;
+                pageHandlers.updateTracking = updateTrackingDisplay;
+
+                // Nettoyer et attacher les listeners
+                form?.removeEventListener('submit', pageHandlers.trackingSubmit);
+                clearDataBtn?.removeEventListener('click', pageHandlers.clearData);
+                exportJsonBtn?.removeEventListener('click', pageHandlers.exportJson);
+                exportCsvBtn?.removeEventListener('click', pageHandlers.exportCsv);
+                historyLimitSelect?.removeEventListener('change', pageHandlers.updateTracking);
+                chartLimitSelect?.removeEventListener('change', pageHandlers.updateTracking);
+
+                form?.addEventListener('submit', pageHandlers.trackingSubmit);
+                clearDataBtn?.addEventListener('click', pageHandlers.clearData);
+                exportJsonBtn?.addEventListener('click', pageHandlers.exportJson);
+                exportCsvBtn?.addEventListener('click', pageHandlers.exportCsv);
+                historyLimitSelect?.addEventListener('change', pageHandlers.updateTracking);
+                chartLimitSelect?.addEventListener('change', pageHandlers.updateTracking);
+
+                updateTrackingDisplay(); // Affichage initial
+                console.log("Tracking page listeners attached.");
+             }
+
+            function updateTrackingDisplay() { const historyLimit = document.getElementById('history-limit')?.value || '30'; const chartLimit = document.getElementById('chart-limit')?.value || '30'; let limitHistoryNum = historyLimit === 'all' ? null : parseInt(historyLimit, 10); let limitChartDays = chartLimit === 'all' ? null : parseInt(chartLimit, 10); const entries = Store.getJournalEntries(limitHistoryNum); UI.displayJournalHistory(entries); const allJournalData = Store.getState().journal; drawIntensityChart(allJournalData, limitChartDays); }
+            function handleTrackingSubmit(e) { e.preventDefault(); const form = e.target; const formData = new FormData(form); const newEntry = { intensity: formData.get('intensity'), notes: formData.get('notes') }; const savedEntry = Store.addJournalEntry(newEntry); if (savedEntry) { form.reset(); const intensityRange = document.getElementById('tracking-intensity'); if(intensityRange && intensityRange.nextElementSibling) intensityRange.nextElementSibling.textContent = intensityRange.defaultValue; UI.showToast('Entrée ajoutée.', 'success'); updateTrackingDisplay(); } else { UI.showToast("Erreur ajout entrée.", 'error'); } }
+            function handleClearData() { Store.clearAllData(); }
+            function handleExportJson() { try { const data = Store.getState(); const dataStr = JSON.stringify(data, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `acouphenes_zen_data_${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); UI.showToast("Export JSON OK.", "success"); } catch (e) { console.error("Erreur export JSON:", e); UI.showToast("Erreur export JSON.", "error"); } }
+            function handleExportCsv() { try { const journal = Store.getState().journal; if (!journal || journal.length === 0) { UI.showToast("Journal vide.", "warning"); return; } const header = "DateHeureISO;Intensite;Notes\n"; const rows = journal.map(entry => { const date = entry.date; const intensity = entry.intensity; let notes = entry.notes || ""; if (notes.includes('"') || notes.includes(';') || notes.includes('\n')) { notes = `"${notes.replace(/"/g, '""')}"`; } return `${date};${intensity};${notes}`; }); const csvContent = header + rows.join("\n"); const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `acouphenes_zen_journal_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); UI.showToast("Export CSV OK.", "success"); } catch (e) { console.error("Erreur export CSV:", e); UI.showToast("Erreur export CSV.", "error"); } }
+            function drawIntensityChart(data, limitDays) { const container = document.getElementById('tracking-chart'); const noDataMsg = document.getElementById('chart-no-data'); if (!container || !noDataMsg) return; container.innerHTML = ''; noDataMsg.classList.add('hidden'); let filteredData = data; if (limitDays !== null && limitDays > 0) { const limitDate = new Date(); limitDate.setDate(limitDate.getDate() - limitDays); filteredData = data.filter(entry => new Date(entry.date) >= limitDate); } if (filteredData.length < 2) { noDataMsg.classList.remove('hidden'); return; } filteredData.sort((a, b) => new Date(a.date) - new Date(b.date)); const svgNS = "http://www.w3.org/2000/svg"; const svg = document.createElementNS(svgNS, "svg"); const containerRect = container.getBoundingClientRect(); const svgWidth = containerRect.width || 600; const svgHeight = 250; const margin = { top: 20, right: 30, bottom: 40, left: 40 }; const width = svgWidth - margin.left - margin.right; const height = svgHeight - margin.top - margin.bottom; svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`); svg.setAttribute("preserveAspectRatio", "xMidYMid meet"); svg.style.width = "100%"; svg.style.height = `${svgHeight}px`; const g = document.createElementNS(svgNS, "g"); g.setAttribute("transform", `translate(${margin.left},${margin.top})`); svg.appendChild(g); const firstDate = new Date(filteredData[0].date); const lastDate = new Date(filteredData[filteredData.length - 1].date); const totalTimeDiff = lastDate.getTime() - firstDate.getTime(); const xScale = (date) => { if (totalTimeDiff === 0) return 0; const timeDiff = new Date(date).getTime() - firstDate.getTime(); return (timeDiff / totalTimeDiff) * width; }; const yScale = (intensity) => height - (intensity / 10) * height; const yAxis = document.createElementNS(svgNS, "line"); yAxis.setAttribute("x1", 0); yAxis.setAttribute("y1", 0); yAxis.setAttribute("x2", 0); yAxis.setAttribute("y2", height); yAxis.setAttribute("class", "chart-axis"); g.appendChild(yAxis); [0, 5, 10].forEach(val => { const y = yScale(val); const label = document.createElementNS(svgNS, "text"); label.setAttribute("x", -margin.left / 2); label.setAttribute("y", y); label.setAttribute("dy", "0.32em"); label.setAttribute("class", "chart-text axis-label-y"); label.textContent = val; g.appendChild(label); const gridLine = document.createElementNS(svgNS, "line"); gridLine.setAttribute("x1", 0); gridLine.setAttribute("y1", y); gridLine.setAttribute("x2", width); gridLine.setAttribute("y2", y); gridLine.setAttribute("class", "chart-grid"); g.appendChild(gridLine); }); const xAxis = document.createElementNS(svgNS, "line"); xAxis.setAttribute("x1", 0); xAxis.setAttribute("y1", height); xAxis.setAttribute("x2", width); xAxis.setAttribute("y2", height); xAxis.setAttribute("class", "chart-axis"); g.appendChild(xAxis); const formatDateLabel = (date) => date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit'}); [firstDate, lastDate].forEach((date, index) => { if(!date) return; const x = index === 0 ? 0 : width; const label = document.createElementNS(svgNS, "text"); label.setAttribute("x", x); label.setAttribute("y", height + margin.bottom / 2); label.setAttribute("dy", "0.71em"); label.setAttribute("class", "chart-text axis-label-x"); if (index === 1 && filteredData.length > 1) label.style.textAnchor = "end"; else label.style.textAnchor = "start"; label.textContent = formatDateLabel(date); g.appendChild(label); }); const linePath = document.createElementNS(svgNS, "path"); const pathData = filteredData.map((d, i) => { const x = xScale(d.date); const y = yScale(d.intensity); return `${i === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`; }).join(" "); linePath.setAttribute("d", pathData); linePath.setAttribute("class", "chart-line"); g.appendChild(linePath); filteredData.forEach(d => { const x = xScale(d.date); const y = yScale(d.intensity); const point = document.createElementNS(svgNS, "circle"); point.setAttribute("cx", x); point.setAttribute("cy", y); point.setAttribute("r", 4); point.setAttribute("class", "chart-point"); const title = document.createElementNS(svgNS, "title"); const pointDate = new Date(d.date); title.textContent = `${pointDate.toLocaleDateString('fr-FR')} ${pointDate.toLocaleTimeString('fr-FR',{hour:'2-digit', minute:'2-digit'})} - Intensité: ${d.intensity}`; point.appendChild(title); g.appendChild(point); }); container.appendChild(svg); }
+
+            function cleanupTrackingPage() {
+                 console.log("Cleanup Tracking");
                  const form = document.getElementById('tracking-form'); const clearDataBtn = document.getElementById('clear-data-btn'); const exportJsonBtn = document.getElementById('export-data-btn'); const exportCsvBtn = document.getElementById('export-csv-btn'); const historyLimitSelect = document.getElementById('history-limit'); const chartLimitSelect = document.getElementById('chart-limit');
-                 form?.addEventListener('submit', handleTrackingSubmit); clearDataBtn?.addEventListener('click', handleClearData); exportJsonBtn?.addEventListener('click', handleExportJson); exportCsvBtn?.addEventListener('click', handleExportCsv); historyLimitSelect?.addEventListener('change', updateTrackingDisplay); chartLimitSelect?.addEventListener('change', updateTrackingDisplay);
-                 updateTrackingDisplay();
-             }
-             function updateTrackingDisplay() { /* ... identique ... */
-                 const historyLimit = document.getElementById('history-limit')?.value || '30'; const chartLimit = document.getElementById('chart-limit')?.value || '30'; let limitHistoryNum = historyLimit === 'all' ? null : parseInt(historyLimit, 10); let limitChartDays = chartLimit === 'all' ? null : parseInt(chartLimit, 10);
-                 const entries = Store.getJournalEntries(limitHistoryNum); UI.displayJournalHistory(entries); const allJournalData = Store.getState().journal; drawIntensityChart(allJournalData, limitChartDays);
-             }
-             function handleTrackingSubmit(e) { /* ... identique ... */
-                e.preventDefault(); const form = e.target; const formData = new FormData(form); const newEntry = { intensity: formData.get('intensity'), notes: formData.get('notes') }; const savedEntry = Store.addJournalEntry(newEntry);
-                if (savedEntry) { form.reset(); const intensityRange = document.getElementById('tracking-intensity'); if(intensityRange && intensityRange.nextElementSibling) intensityRange.nextElementSibling.textContent = intensityRange.defaultValue; UI.showToast('Entrée ajoutée.', 'success'); updateTrackingDisplay(); } else { UI.showToast("Erreur ajout entrée.", 'error'); }
-             }
-             function handleClearData() { Store.clearAllData(); }
-             function handleExportJson() { /* ... identique ... */
-                try { const data = Store.getState(); const dataStr = JSON.stringify(data, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `acouphenes_zen_data_${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); UI.showToast("Export JSON terminé.", "success"); } catch (e) { console.error("Erreur export JSON:", e); UI.showToast("Erreur export JSON.", "error"); }
-             }
-             function handleExportCsv() { /* ... identique ... */
-                try { const journal = Store.getState().journal; if (!journal || journal.length === 0) { UI.showToast("Journal vide.", "warning"); return; } const header = "DateHeureISO;Intensite;Notes\n"; const rows = journal.map(entry => { const date = entry.date; const intensity = entry.intensity; let notes = entry.notes || ""; if (notes.includes('"') || notes.includes(';') || notes.includes('\n')) { notes = `"${notes.replace(/"/g, '""')}"`; } return `${date};${intensity};${notes}`; }); const csvContent = header + rows.join("\n"); const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `acouphenes_zen_journal_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); UI.showToast("Export CSV terminé.", "success"); } catch (e) { console.error("Erreur export CSV:", e); UI.showToast("Erreur export CSV.", "error"); }
-             }
-             function drawIntensityChart(data, limitDays) { /* ... (Code dessin SVG identique) ... */
-                 const container = document.getElementById('tracking-chart'); const noDataMsg = document.getElementById('chart-no-data'); if (!container || !noDataMsg) return; container.innerHTML = ''; noDataMsg.classList.add('hidden');
-                 let filteredData = data; if (limitDays !== null && limitDays > 0) { const limitDate = new Date(); limitDate.setDate(limitDate.getDate() - limitDays); filteredData = data.filter(entry => new Date(entry.date) >= limitDate); }
-                 if (filteredData.length < 2) { noDataMsg.classList.remove('hidden'); console.log("Pas assez données pour graph."); return; }
-                 filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
-                 const svgNS = "http://www.w3.org/2000/svg"; const svg = document.createElementNS(svgNS, "svg"); const containerRect = container.getBoundingClientRect(); const svgWidth = containerRect.width || 600; const svgHeight = 250; const margin = { top: 20, right: 30, bottom: 40, left: 40 }; const width = svgWidth - margin.left - margin.right; const height = svgHeight - margin.top - margin.bottom;
-                 svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`); svg.setAttribute("preserveAspectRatio", "xMidYMid meet"); svg.style.width = "100%"; svg.style.height = `${svgHeight}px`;
-                 const g = document.createElementNS(svgNS, "g"); g.setAttribute("transform", `translate(${margin.left},${margin.top})`); svg.appendChild(g);
-                 const firstDate = new Date(filteredData[0].date); const lastDate = new Date(filteredData[filteredData.length - 1].date); const totalTimeDiff = lastDate.getTime() - firstDate.getTime();
-                 const xScale = (date) => { if (totalTimeDiff === 0) return 0; const timeDiff = new Date(date).getTime() - firstDate.getTime(); return (timeDiff / totalTimeDiff) * width; }; const yScale = (intensity) => height - (intensity / 10) * height;
-                 const yAxis = document.createElementNS(svgNS, "line"); yAxis.setAttribute("x1", 0); yAxis.setAttribute("y1", 0); yAxis.setAttribute("x2", 0); yAxis.setAttribute("y2", height); yAxis.setAttribute("class", "chart-axis"); g.appendChild(yAxis);
-                 [0, 5, 10].forEach(val => { const y = yScale(val); const label = document.createElementNS(svgNS, "text"); label.setAttribute("x", -margin.left / 2); label.setAttribute("y", y); label.setAttribute("dy", "0.32em"); label.setAttribute("class", "chart-text axis-label-y"); label.textContent = val; g.appendChild(label); const gridLine = document.createElementNS(svgNS, "line"); gridLine.setAttribute("x1", 0); gridLine.setAttribute("y1", y); gridLine.setAttribute("x2", width); gridLine.setAttribute("y2", y); gridLine.setAttribute("class", "chart-grid"); g.appendChild(gridLine); });
-                 const xAxis = document.createElementNS(svgNS, "line"); xAxis.setAttribute("x1", 0); xAxis.setAttribute("y1", height); xAxis.setAttribute("x2", width); xAxis.setAttribute("y2", height); xAxis.setAttribute("class", "chart-axis"); g.appendChild(xAxis);
-                 const formatDateLabel = (date) => date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit'}); [firstDate, lastDate].forEach((date, index) => { const x = index === 0 ? 0 : width; const label = document.createElementNS(svgNS, "text"); label.setAttribute("x", x); label.setAttribute("y", height + margin.bottom / 2); label.setAttribute("dy", "0.71em"); label.setAttribute("class", "chart-text axis-label-x"); if (index === filteredData.length - 1) label.style.textAnchor = "end"; else if (index === 0) label.style.textAnchor = "start"; label.textContent = formatDateLabel(date); g.appendChild(label); });
-                 const linePath = document.createElementNS(svgNS, "path"); const pathData = filteredData.map((d, i) => { const x = xScale(d.date); const y = yScale(d.intensity); return `${i === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`; }).join(" "); linePath.setAttribute("d", pathData); linePath.setAttribute("class", "chart-line"); g.appendChild(linePath);
-                 filteredData.forEach(d => { const x = xScale(d.date); const y = yScale(d.intensity); const point = document.createElementNS(svgNS, "circle"); point.setAttribute("cx", x); point.setAttribute("cy", y); point.setAttribute("r", 4); point.setAttribute("class", "chart-point"); const title = document.createElementNS(svgNS, "title"); const pointDate = new Date(d.date); title.textContent = `${pointDate.toLocaleDateString('fr-FR')} ${pointDate.toLocaleTimeString('fr-FR',{hour:'2-digit', minute:'2-digit'})} - Intensité: ${d.intensity}`; point.appendChild(title); g.appendChild(point); });
-                 container.appendChild(svg);
-             }
-             function cleanupTrackingPage() { /* ... identique ... */
-                 const form = document.getElementById('tracking-form'); const clearDataBtn = document.getElementById('clear-data-btn'); const exportJsonBtn = document.getElementById('export-data-btn'); const exportCsvBtn = document.getElementById('export-csv-btn'); const historyLimitSelect = document.getElementById('history-limit'); const chartLimitSelect = document.getElementById('chart-limit');
-                 form?.removeEventListener('submit', handleTrackingSubmit); clearDataBtn?.removeEventListener('click', handleClearData); exportJsonBtn?.removeEventListener('click', handleExportJson); exportCsvBtn?.removeEventListener('click', handleExportCsv); historyLimitSelect?.removeEventListener('change', updateTrackingDisplay); chartLimitSelect?.removeEventListener('change', updateTrackingDisplay);
-                 const container = document.getElementById('tracking-chart'); if (container) container.innerHTML = ''; console.log("Cleanup Suivi");
+                 // Retirer les listeners en utilisant pageHandlers global
+                 if(pageHandlers.trackingSubmit) form?.removeEventListener('submit', pageHandlers.trackingSubmit);
+                 if(pageHandlers.clearData) clearDataBtn?.removeEventListener('click', pageHandlers.clearData);
+                 if(pageHandlers.exportJson) exportJsonBtn?.removeEventListener('click', pageHandlers.exportJson);
+                 if(pageHandlers.exportCsv) exportCsvBtn?.removeEventListener('click', pageHandlers.exportCsv);
+                 if(pageHandlers.updateTracking) { historyLimitSelect?.removeEventListener('change', pageHandlers.updateTracking); chartLimitSelect?.removeEventListener('change', pageHandlers.updateTracking); }
+                 // Nettoyer le graphique
+                 const container = document.getElementById('tracking-chart'); if (container) container.innerHTML = '';
+                 // Supprimer les références stockées
+                 delete pageHandlers.trackingSubmit; delete pageHandlers.clearData; delete pageHandlers.exportJson; delete pageHandlers.exportCsv; delete pageHandlers.updateTracking;
+                 console.log("Tracking listeners removed.");
              }
 
-             // Page Ressources
-             function initResourcesPage() { /* Rien */ }
-             function cleanupResourcesPage() { /* Rien */ }
-
+            // --- Page Ressources ---
+             function initResourcesPage() { console.log("Init Ressources"); /* Rien de spécial à faire ici pour l'instant */ }
+             function cleanupResourcesPage() { console.log("Cleanup Ressources"); /* Rien de spécial à faire ici pour l'instant */ }
 
             // --- Initialisation Générale ---
-             function initThemeToggle() { /* ... identique ... */
-                const toggleButton = document.getElementById('theme-toggle');
-                if (toggleButton) {
-                    toggleButton.addEventListener('click', () => { const currentTheme = Store.getThemePreference(); const newTheme = currentTheme === 'dark' ? 'light' : 'dark'; Store.updateThemePreference(newTheme); Store.applyThemePreference(); });
-                    Store.applyThemePreference(); // Appliquer thème initial
-                }
-             }
+             function initThemeToggle() { const toggleButton = document.getElementById('theme-toggle'); if (toggleButton) { toggleButton.addEventListener('click', () => { const currentTheme = Store.getThemePreference(); const newTheme = currentTheme === 'dark' ? 'light' : 'dark'; Store.updateThemePreference(newTheme); Store.applyThemePreference(); }); Store.applyThemePreference(); } }
 
             // --- DÉMARRAGE DE L'APPLICATION ---
-            Router.init(); // Initialise le routage, l'audio, le thème, et le padding dynamique
-            console.log("Acouphènes Zen App Ready v1.0.");
+            Router.init();
+            console.log("Acouphènes Zen App Ready v1.1 Corrected.");
 
         }); // Fin de DOMContentLoaded
     </script>
