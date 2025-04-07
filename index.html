@@ -1206,53 +1206,64 @@
             };
 
             // Met à jour l'affichage et gère la file d'attente TTS de manière plus robuste
-            function updateHypnoDisplay() {
-                const now = Date.now();
-                const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
-                const timerDisplay = document.querySelector('#hypnose-session .timer');
-                const textContent = document.getElementById('session-text-content');
-                const stepIndicator = document.getElementById('session-step-indicator');
+			function updateHypnoDisplay() {
+				const now = Date.now();
+				const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
+				const timerDisplay = document.querySelector('#hypnose-session .timer');
+				const textContent = document.getElementById('session-text-content');
+				const stepIndicator = document.getElementById('session-step-indicator');
 
-                if (!hypnoCurrentSessionData || !textContent) {
-                    if (hypnoTimerInterval) clearInterval(hypnoTimerInterval);
-                    hypnoTimerInterval = null;
-                    return;
-                }
+				// Early return if session data or text content is not available
+				if (!hypnoCurrentSessionData || !textContent) {
+					if (hypnoTimerInterval) clearInterval(hypnoTimerInterval);
+					hypnoTimerInterval = null;
+					return;
+				}
 
-                if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
+				// Update the timer display
+				if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
 
-                const elapsed = hypnoCurrentSessionData.duration - remaining;
-                const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
-                const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
+				// Calculate elapsed time and determine the current step
+				const elapsed = hypnoCurrentSessionData.duration - remaining;
+				const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
+				const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
 
-                if (currentStep) {
-                    const currentStepTextRaw = currentStep.text;
-                    const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
-                    const currentTextElement = textContent.querySelector('p');
-                    const displayedDataTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null;
+				if (currentStep) {
+					const currentStepTextRaw = currentStep.text;
+					const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
+					const currentTextElement = textContent.querySelector('p');
+					const displayedDataTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null;
 
-                    // --- Mise à jour de l'affichage ---
-                    if (!displayedDataTextEscaped || displayedDataTextEscaped !== currentStepTextEscaped) {
-                        //console.log(`[updateHypnoDisplay] Updating display for step time ${currentStep.time}.`); // Moins de logs
-                        textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
-                        textContent.scrollTop = textContent.scrollHeight;
-                    }
+					// Update the display if the text has changed
+					if (!displayedDataTextEscaped || displayedDataTextEscaped !== currentStepTextEscaped) {
+						textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
+						textContent.scrollTop = textContent.scrollHeight;
+					}
 
-                    // --- Mise en file d'attente TTS (Condition renforcée) ---
-                    if (hypnoTtsEnabled && TTSManager.isSupported() && currentStep.time !== lastQueuedStepTime && textToSpeak === null) {
-                         console.log(`[updateHypnoDisplay] Queuing TTS for step time ${currentStep.time} (last was ${lastQueuedStepTime}). Text: "${currentStepTextRaw.substring(0, 30)}..."`);
-                         textToSpeak = currentStepTextRaw; // Mettre en attente
-                         lastQueuedStepTime = currentStep.time; // Marquer comme mis en attente
-                    }
+					// Queue TTS if enabled, supported, and conditions are met
+					if (
+						hypnoTtsEnabled &&
+						TTSManager.isSupported() &&
+						currentStep.time !== lastQueuedStepTime &&
+						currentStepIndex !== lastQueuedStepIndex &&
+						textToSpeak === null
+					) {
+						console.log(
+							`[UPDATEHYPNODISPLAY] Mise en file d'attente TTS pour étape ${currentStepIndex + 1} à temps ${currentStep.time} (dernier temps ${lastQueuedStepTime}, dernier index ${lastQueuedStepIndex}). Texte : "${currentStepTextRaw.substring(0, 30)}..."`
+						);
+						textToSpeak = currentStepTextRaw; // Queue the text for the new step
+						lastQueuedStepTime = currentStep.time; // Update the time tracker
+						lastQueuedStepIndex = currentStepIndex; // Update the index tracker
+					}
 
-                    // --- Mise à jour indicateur d'étape ---
-                    if (stepIndicator) {
-                        const totalSteps = hypnoCurrentSessionData.script.length;
-                        const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex;
-                        stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`;
-                    }
-                }
-            }
+					// Update the step indicator
+					if (stepIndicator) {
+						const totalSteps = hypnoCurrentSessionData.script.length;
+						const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex;
+						stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`;
+					}
+				}
+			}
 
             // Fonction appelée par setInterval
             function hypnoTick() {
@@ -1336,6 +1347,7 @@
                 TTSManager.cancel(); // Arrêter TTS en cours
 
                 lastQueuedStepTime = -1; // Réinitialiser le tracker TTS
+				lastQueuedStepIndex = -1;
                 textToSpeak = null;    // Vider la file d'attente TTS
 
                 if (hypnoCurrentSessionData) { const sessionKey = Object.keys(sessionsData).find(key => sessionsData[key] === hypnoCurrentSessionData); if(sessionKey) { Store.addSessionLog({ sessionKey, duration: hypnoCurrentSessionData.duration, completed: sessionEndedNaturally }); console.log(`Session log: ${sessionEndedNaturally ? 'complète' : 'arrêtée'}`); } else { console.error("Could not find session key for logging.");} }
