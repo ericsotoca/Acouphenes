@@ -1,1 +1,1226 @@
-https://ericsotoca.github.io/Acouphenes/
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acouphènes & Auto-hypnose</title>
+    <style>
+        /* --- CSS Intégré --- */
+
+        /* Variables (Thème Clair par défaut) */
+        :root {
+            --bg-color: #f4f7f9;
+            --text-color: #333;
+            --primary-color: #4a90e2;
+            --secondary-color: #7cb342;
+            --accent-color: #f7b731;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --input-bg: #ffffff;
+            --button-text: #ffffff;
+            --link-color: #4a90e2;
+            --disabled-color: #cccccc;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-size-base: 16px;
+            --line-height-base: 1.6;
+
+            --spacing-xs: 4px;
+            --spacing-s: 8px;
+            --spacing-m: 16px;
+            --spacing-l: 24px;
+            --spacing-xl: 32px;
+
+            --border-radius: 4px;
+            --shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        /* Thème Sombre */
+        body.dark-mode {
+            --bg-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --primary-color: #5dade2;
+            --secondary-color: #82e0aa;
+            --accent-color: #f4d03f;
+            --card-bg: #34495e;
+            --border-color: #4b6584;
+            --input-bg: #4b6584;
+            --button-text: #2c3e50;
+            --link-color: #5dade2;
+            --disabled-color: #7f8c8d;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Reset et Styles Globaux */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: var(--font-size-base);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: var(--line-height-base);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding-top: 60px; /* Espace pour la nav fixe */
+        }
+
+        #app {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-l);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-s) var(--spacing-l);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Pour les petits écrans */
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: var(--spacing-m);
+            flex-wrap: wrap; /* Pour les petits écrans */
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--link-color);
+            font-weight: 500;
+            transition: color 0.2s ease;
+            padding: var(--spacing-xs) var(--spacing-s);
+            border-radius: var(--border-radius);
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--primary-color);
+            background-color: rgba(74, 144, 226, 0.1); /* Couleur primaire avec opacité */
+        }
+
+        /* Contenu Principal */
+        main {
+            padding-top: var(--spacing-m);
+            min-height: calc(100vh - 120px); /* Hauteur minimale pour pousser le footer éventuel */
+        }
+
+        .content-section {
+            background-color: var(--card-bg);
+            padding: var(--spacing-l);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: var(--spacing-l);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Éléments de Formulaire */
+        label {
+            display: block;
+            margin-bottom: var(--spacing-s);
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: var(--spacing-s) var(--spacing-m);
+            margin-bottom: var(--spacing-m);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button,
+        .button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--button-text);
+            border: none;
+            padding: var(--spacing-m) var(--spacing-l);
+            border-radius: var(--border-radius);
+            font-size: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        button:hover,
+        .button:hover {
+            background-color: color-mix(in srgb, var(--primary-color) 90%, black);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:disabled,
+        .button:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .button-secondary {
+            background-color: var(--secondary-color);
+        }
+         .button-secondary:hover {
+            background-color: color-mix(in srgb, var(--secondary-color) 90%, black);
+        }
+
+
+        /* Utilitaires */
+        .hidden { display: none; }
+        .text-center { text-align: center; }
+        .mt-m { margin-top: var(--spacing-m); }
+        .mt-l { margin-top: var(--spacing-l); }
+        .mb-m { margin-bottom: var(--spacing-m); }
+        .mb-l { margin-bottom: var(--spacing-l); }
+
+        /* Styles spécifiques aux modules */
+        #hypnose-session .timer {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin: var(--spacing-l) 0;
+            color: var(--secondary-color);
+        }
+        #hypnose-session .session-text {
+            background-color: rgba(0,0,0,0.03);
+            padding: var(--spacing-m);
+            border-radius: var(--border-radius);
+            min-height: 150px;
+            border-left: 4px solid var(--primary-color);
+        }
+        #tracking-history ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        #tracking-history li {
+            border-bottom: 1px dashed var(--border-color);
+            padding: var(--spacing-s) 0;
+        }
+         #tracking-history li:last-child {
+            border-bottom: none;
+         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: var(--spacing-s) var(--spacing-m);
+            }
+            nav ul {
+                 gap: var(--spacing-s);
+                 justify-content: center; /* Centrer les liens sur petit écran */
+                 width: 100%; /* Prendre toute la largeur */
+                 margin-top: var(--spacing-s);
+            }
+            #app {
+                 padding: var(--spacing-m);
+            }
+            .content-section {
+                 padding: var(--spacing-m);
+            }
+            button, .button {
+                padding: var(--spacing-s) var(--spacing-m);
+                width: 100%; /* Boutons pleine largeur sur mobile */
+                margin-bottom: var(--spacing-s);
+            }
+        }
+
+        /* Theme Toggle */
+        #theme-toggle {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.5em; /* Rendre l'icône plus grande */
+            padding: 0 var(--spacing-s);
+            color: var(--text-color);
+        }
+
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <nav id="main-nav">
+             <a href="#home" class="nav-brand" style="font-weight: bold; font-size: 1.2em;">Acouphènes Zen</a>
+            <ul>
+                <li><a href="#home">Accueil</a></li>
+                <li><a href="#evaluation">Évaluation</a></li>
+                <li><a href="#hypnose">Auto-Hypnose</a></li>
+                <li><a href="#sounds">Sons</a></li>
+                <li><a href="#tracking">Suivi</a></li>
+                <li><a href="#resources">Ressources</a></li>
+            </ul>
+             <button id="theme-toggle" title="Changer le thème">☀️</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- Le contenu des templates sera injecté ici -->
+        </main>
+    </div>
+
+    <!-- --- Modèles HTML --- -->
+
+    <template id="template-home">
+        <section class="content-section">
+            <h1>Bienvenue sur Acouphènes Zen</h1>
+            <p>Cette application est conçue pour vous aider à mieux comprendre et gérer vos acouphènes grâce à des techniques d'auto-hypnose et des sons thérapeutiques.</p>
+            <p class="mt-m">Explorez les différentes sections pour commencer :</p>
+            <ul>
+                <li><a href="#evaluation">Évaluez</a> l'impact de vos acouphènes.</li>
+                <li>Découvrez des sessions guidées d'<a href="#hypnose">auto-hypnose</a>.</li>
+                <li>Utilisez le <a href="#sounds">générateur de sons</a> pour masquer les acouphènes.</li>
+                <li>Suivez votre <a href="#tracking">progression</a> au fil du temps.</li>
+                <li>Consultez nos <a href="#resources">ressources</a> pour en savoir plus.</li>
+            </ul>
+             <p class="mt-l" style="font-size: 0.9em; opacity: 0.8;"><em>Note : Cette application ne remplace pas un avis médical professionnel. Consultez toujours un médecin ou un spécialiste ORL pour un diagnostic et un plan de traitement adaptés.</em></p>
+        </section>
+    </template>
+
+    <template id="template-evaluation">
+        <section class="content-section">
+            <h2>Évaluation Initiale des Acouphènes</h2>
+            <form id="evaluation-form">
+                <p>Ce questionnaire nous aide à comprendre vos acouphènes. Vos réponses sont stockées localement sur votre appareil.</p>
+
+                <fieldset class="mb-l">
+                    <legend class="mb-m">Caractéristiques des acouphènes</legend>
+                    <label for="sound-type">Quel type de son entendez-vous principalement ? (Sifflement, bourdonnement, cliquetis, etc.)</label>
+                    <input type="text" id="sound-type" name="sound-type" required>
+
+                    <label>Le son est-il dans :</label>
+                    <input type="radio" id="ear-left" name="ear-location" value="left"> <label for="ear-left">Oreille gauche</label><br>
+                    <input type="radio" id="ear-right" name="ear-location" value="right"> <label for="ear-right">Oreille droite</label><br>
+                    <input type="radio" id="ear-both" name="ear-location" value="both" checked> <label for="ear-both">Les deux oreilles</label><br>
+                    <input type="radio" id="ear-head" name="ear-location" value="head"> <label for="ear-head">Dans la tête</label>
+
+                    <label for="intensity-avg" class="mt-m">Sur une échelle de 0 (pas d'acouphène) à 10 (insupportable), quelle est l'intensité moyenne de vos acouphènes ?</label>
+                    <input type="range" id="intensity-avg" name="intensity-avg" min="0" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value"> <output>5</output>
+                </fieldset>
+
+                 <fieldset class="mb-l">
+                     <legend class="mb-m">Impact sur la qualité de vie</legend>
+                     <label for="impact-sleep">Quel impact ont vos acouphènes sur votre sommeil (0=aucun, 10=sévère) ?</label>
+                    <input type="range" id="impact-sleep" name="impact-sleep" min="0" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value"> <output>5</output>
+
+                     <label for="impact-concentration" class="mt-m">Quel impact sur votre concentration (0=aucun, 10=sévère) ?</label>
+                    <input type="range" id="impact-concentration" name="impact-concentration" min="0" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value"> <output>5</output>
+
+                    <label for="impact-mood" class="mt-m">Quel impact sur votre humeur (anxiété, irritabilité) (0=aucun, 10=sévère) ?</label>
+                    <input type="range" id="impact-mood" name="impact-mood" min="0" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value"> <output>5</output>
+                 </fieldset>
+
+                 <fieldset>
+                    <legend class="mb-m">Facteurs d'influence</legend>
+                    <label for="triggers">Quels facteurs semblent aggraver vos acouphènes ? (Stress, fatigue, bruit fort, silence, certains aliments...)</label>
+                    <textarea id="triggers" name="triggers" rows="3"></textarea>
+
+                     <label for="reducers">Qu'est-ce qui semble les atténuer ? (Bruit de fond, relaxation, musique...)</label>
+                    <textarea id="reducers" name="reducers" rows="3"></textarea>
+                 </fieldset>
+
+                <button type="submit" class="mt-l">Enregistrer l'évaluation</button>
+            </form>
+             <div id="evaluation-result" class="mt-m" style="font-weight: bold;"></div>
+        </section>
+    </template>
+
+    <template id="template-hypnose">
+        <section class="content-section">
+            <h2>Auto-Hypnose Guidée</h2>
+            <p>Choisissez une session pour commencer. Trouvez un endroit calme où vous ne serez pas dérangé.</p>
+
+            <div id="hypnose-menu" class="mt-m">
+                <button class="button" data-session="debutant">Débutant (10 min) - Détente & Conscience</button>
+                <button class="button" data-session="intermediaire">Intermédiaire (15 min) - Détournement Attentionnel</button>
+                <button class="button" data-session="avance">Avancé (20 min) - Reprogrammation Perceptive</button>
+            </div>
+
+            <div id="hypnose-session" class="hidden mt-l">
+                <h3 id="session-title"></h3>
+                <div class="timer">--:--</div>
+                <div class="session-text" id="session-text-content">
+                    <!-- Le texte de la session sera chargé ici -->
+                    <p>Préparez-vous...</p>
+                </div>
+                <div class="controls mt-m">
+                    <label for="hypno-noise">Bruit de fond :</label>
+                    <select id="hypno-noise">
+                        <option value="none">Aucun</option>
+                        <option value="white">Bruit Blanc</option>
+                        <option value="pink">Bruit Rose (Bientôt)</option>
+                        <option value="brown">Bruit Brun (Bientôt)</option>
+                    </select>
+                    <label for="hypno-volume">Volume du bruit:</label>
+                    <input type="range" id="hypno-volume" min="0" max="1" step="0.05" value="0.1">
+
+                    <button id="start-session-btn" class="button-secondary">Démarrer la session</button>
+                    <button id="stop-session-btn" class="hidden">Arrêter</button>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="template-sounds">
+        <section class="content-section">
+            <h2>Générateur de Sons Thérapeutiques</h2>
+            <p>Utilisez ces sons pour masquer ou détourner l'attention de vos acouphènes.</p>
+
+            <div class="sound-generator-controls mt-m">
+                 <label for="sound-type-select">Type de son :</label>
+                 <select id="sound-type-select">
+                     <option value="white">Bruit Blanc</option>
+                     <option value="pink" disabled>Bruit Rose (Bientôt)</option>
+                     <option value="brown" disabled>Bruit Brun (Bientôt)</option>
+                     <option value="rain" disabled>Pluie (Bientôt)</option>
+                 </select>
+
+                <label for="sound-volume" class="mt-m">Volume :</label>
+                <input type="range" id="sound-volume" min="0" max="1" step="0.05" value="0.2"> <output>0.2</output>
+
+                <div class="mt-l">
+                    <button id="play-sound-btn">▶️ Jouer</button>
+                    <button id="stop-sound-btn" class="hidden">⏹️ Arrêter</button>
+                </div>
+                <!-- Minuteur d'arrêt optionnel (à ajouter) -->
+            </div>
+        </section>
+    </template>
+
+    <template id="template-tracking">
+        <section class="content-section">
+            <h2>Suivi Quotidien</h2>
+            <form id="tracking-form">
+                 <legend class="mb-m">Entrée du jour</legend>
+                <label for="tracking-intensity">Intensité des acouphènes aujourd'hui (0-10):</label>
+                <input type="range" id="tracking-intensity" name="intensity" min="0" max="10" value="5" step="1" required oninput="this.nextElementSibling.textContent = this.value"> <output>5</output>
+
+                <label for="tracking-notes" class="mt-m">Notes (facteurs, humeur, sessions effectuées...) :</label>
+                <textarea id="tracking-notes" name="notes" rows="3"></textarea>
+
+                <button type="submit" class="mt-m">Ajouter au journal</button>
+            </form>
+
+            <div id="tracking-history" class="mt-l">
+                <h3>Historique</h3>
+                <p id="history-loading">Chargement de l'historique...</p>
+                <ul>
+                    <!-- Les entrées du journal seront ajoutées ici -->
+                </ul>
+                 <div id="tracking-chart-placeholder" class="mt-l" style="min-height: 200px; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--disabled-color);">
+                    Graphique d'évolution (Sera implémenté ici)
+                 </div>
+                 <button id="export-data-btn" class="mt-l button-secondary" disabled>Exporter les données (Bientôt)</button>
+                 <button id="clear-data-btn" class="mt-l" style="background-color: #e74c3c;">Supprimer toutes les données</button>
+            </div>
+        </section>
+    </template>
+
+    <template id="template-resources">
+        <section class="content-section">
+            <h2>Ressources Éducatives</h2>
+
+            <article class="mb-l">
+                <h3>Comprendre les Acouphènes</h3>
+                <p>Les acouphènes sont la perception de sons (sifflements, bourdonnements, etc.) en l'absence de source sonore externe. Ils peuvent avoir de multiples causes : exposition au bruit, vieillissement, problèmes ORL, stress, etc.</p>
+                <p>Il est essentiel de consulter un professionnel de santé pour un diagnostic précis.</p>
+                 <!-- Ajouter plus d'informations ici -->
+            </article>
+
+            <article class="mb-l">
+                <h3>L'Auto-Hypnose pour la Gestion des Acouphènes</h3>
+                <p>L'auto-hypnose est un état de concentration focalisée et de relaxation profonde que vous induisez vous-même. Elle peut aider à :</p>
+                <ul>
+                    <li>Réduire le stress et l'anxiété souvent associés aux acouphènes.</li>
+                    <li>Détourner l'attention du son de l'acouphène.</li>
+                    <li>Modifier la perception émotionnelle et l'impact de l'acouphène.</li>
+                </ul>
+                <p>Nos sessions guidées sont conçues pour vous initier progressivement.</p>
+                 <!-- Ajouter plus d'informations ici -->
+            </article>
+
+            <article>
+                <h3>Conseils Complémentaires</h3>
+                <ul>
+                    <li><strong>Gestion du stress :</strong> Techniques de relaxation, méditation, yoga.</li>
+                    <li><strong>Environnement sonore :</strong> Éviter le silence complet (utiliser des bruits de fond doux), se protéger des bruits forts.</li>
+                    <li><strong>Sommeil :</strong> Maintenir une bonne hygiène de sommeil.</li>
+                    <li><strong>Alimentation :</strong> Certains aliments ou stimulants (caféine, alcool) peuvent influencer les acouphènes chez certaines personnes.</li>
+                     <!-- Ajouter plus de conseils -->
+                </ul>
+            </article>
+             <article class="mt-l">
+                 <h3>FAQ</h3>
+                 <p><strong>Q: Cette application peut-elle guérir mes acouphènes ?</strong><br> R: Non, cette application vise à vous fournir des outils pour mieux gérer vos acouphènes et leur impact sur votre vie. Elle ne remplace pas un traitement médical.</p>
+                 <!-- Ajouter plus de Q/R -->
+             </article>
+        </section>
+    </template>
+
+
+    <!-- --- JavaScript Intégré --- -->
+    <script>
+        // Attend que le DOM soit complètement chargé
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- MODULE: État Global & Stockage Local ---
+            const Store = (() => {
+                const STORAGE_KEY = 'acouphenesZenData';
+                let state = {
+                    userProfile: {
+                        initialAssessment: null,
+                        preferences: {
+                             theme: 'light' // ou 'dark'
+                        }
+                    },
+                    sessions: [], // Historique des sessions d'hypnose
+                    journal: [],  // Journal de suivi quotidien
+                    lastActive: null
+                };
+
+                function load() {
+                    const storedData = localStorage.getItem(STORAGE_KEY);
+                    if (storedData) {
+                        try {
+                            const parsedData = JSON.parse(storedData);
+                            // Fusionner prudemment pour ne pas écraser la structure si elle a changé
+                            state = { ...state, ...parsedData };
+                            // Assurer que les sous-objets existent
+                            state.userProfile = { ...state.userProfile, ...(parsedData.userProfile || {}) };
+                            state.userProfile.preferences = { ...state.userProfile.preferences, ...(parsedData.userProfile?.preferences || {}) };
+                            state.sessions = parsedData.sessions || [];
+                            state.journal = parsedData.journal || [];
+
+                            console.log('Données chargées depuis localStorage.');
+                        } catch (e) {
+                            console.error("Erreur lors du chargement depuis localStorage:", e);
+                            // Initialiser avec les valeurs par défaut si erreur
+                            save();
+                        }
+                    } else {
+                         console.log('Aucune donnée locale trouvée, initialisation.');
+                         save(); // Sauvegarder l'état initial
+                    }
+                    applyThemePreference(); // Appliquer le thème chargé
+                }
+
+                function save() {
+                    state.lastActive = new Date().toISOString();
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                        //console.log('Données sauvegardées dans localStorage.');
+                    } catch (e) {
+                        console.error("Erreur lors de la sauvegarde dans localStorage:", e);
+                        alert("Erreur lors de la sauvegarde des données. L'espace de stockage local est peut-être plein.");
+                    }
+                }
+
+                function getState() {
+                    return state;
+                }
+
+                 function updateProfile(profileData) {
+                     state.userProfile.initialAssessment = profileData;
+                     save();
+                 }
+
+                 function addJournalEntry(entry) {
+                     entry.date = new Date().toISOString();
+                     state.journal.push(entry);
+                     // Optionnel: Limiter la taille du journal
+                     // if (state.journal.length > 100) { state.journal.shift(); }
+                     save();
+                     return entry; // Retourner l'entrée avec la date ajoutée
+                 }
+
+                 function getJournalEntries() {
+                    // Trier par date décroissante (plus récent en premier)
+                    return [...state.journal].sort((a, b) => new Date(b.date) - new Date(a.date));
+                 }
+
+                 function updateThemePreference(theme) {
+                     state.userProfile.preferences.theme = theme;
+                     save();
+                 }
+
+                 function getThemePreference() {
+                     return state.userProfile.preferences.theme || 'light';
+                 }
+
+                 function clearAllData() {
+                     if (confirm("Êtes-vous sûr de vouloir supprimer toutes vos données ? Cette action est irréversible.")) {
+                        localStorage.removeItem(STORAGE_KEY);
+                        // Réinitialiser l'état interne
+                        state = {
+                            userProfile: { initialAssessment: null, preferences: { theme: 'light' } },
+                            sessions: [],
+                            journal: [],
+                            lastActive: null
+                        };
+                        save(); // Sauvegarde l'état vide
+                        console.log("Toutes les données ont été supprimées.");
+                        // Recharger la page ou rediriger vers l'accueil peut être une bonne idée
+                        window.location.hash = '#home';
+                        window.location.reload();
+                        return true;
+                    }
+                    return false;
+                 }
+
+                 function applyThemePreference() {
+                     const theme = getThemePreference();
+                     document.body.classList.toggle('dark-mode', theme === 'dark');
+                     const toggleButton = document.getElementById('theme-toggle');
+                     if (toggleButton) {
+                        toggleButton.textContent = theme === 'dark' ? '☀️' : '🌙';
+                        toggleButton.title = `Passer au thème ${theme === 'dark' ? 'clair' : 'sombre'}`;
+                     }
+                 }
+
+                 // Charger les données au démarrage du module Store
+                 load();
+
+                return {
+                    load,
+                    save,
+                    getState,
+                    updateProfile,
+                    addJournalEntry,
+                    getJournalEntries,
+                    updateThemePreference,
+                    getThemePreference,
+                    applyThemePreference,
+                    clearAllData
+                };
+            })();
+
+            // --- MODULE: UI (Manipulation du DOM) ---
+            const UI = (() => {
+                const mainContent = document.getElementById('main-content');
+                const navLinks = document.querySelectorAll('#main-nav a');
+
+                function renderTemplate(templateId, context = {}) {
+                    const template = document.getElementById(templateId);
+                    if (!template) {
+                        console.error(`Template non trouvé : ${templateId}`);
+                        mainContent.innerHTML = `<p>Erreur : Contenu non trouvé.</p>`;
+                        return null; // Retourner null si le template n'existe pas
+                    }
+                    const content = template.content.cloneNode(true);
+                    mainContent.innerHTML = ''; // Vider le contenu précédent
+                    mainContent.appendChild(content);
+                    setActiveNavLink(templateId.replace('template-', ''));
+                    return mainContent.firstChild; // Retourne l'élément principal ajouté (ex: la <section>)
+                }
+
+                function setActiveNavLink(hash) {
+                     navLinks.forEach(link => {
+                         // Enlève 'active' de tous les liens
+                         link.classList.remove('active');
+                         // Ajoute 'active' si le href correspond au hash actuel (enlève le #)
+                         if (link.getAttribute('href') === `#${hash}`) {
+                             link.classList.add('active');
+                         }
+                     });
+                 }
+
+                 function displayEvaluationResult(score, message) {
+                    const resultDiv = document.getElementById('evaluation-result');
+                    if (resultDiv) {
+                        resultDiv.textContent = `Résultat de l'évaluation (exemple) : ${message} (Score: ${score})`;
+                        resultDiv.style.color = score > 6 ? '#e74c3c' : '#2ecc71'; // Rouge si élevé, vert sinon
+                    }
+                 }
+
+                 function renderJournalEntry(entry) {
+                    const historyList = document.querySelector('#tracking-history ul');
+                    if (!historyList) return;
+
+                    const li = document.createElement('li');
+                    const entryDate = new Date(entry.date);
+                    const formattedDate = entryDate.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const formattedTime = entryDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+                    li.innerHTML = `
+                        <strong>${formattedDate} ${formattedTime}</strong> - Intensité: ${entry.intensity}/10
+                        ${entry.notes ? `<br><small><em>Notes: ${escapeHtml(entry.notes)}</em></small>` : ''}
+                    `;
+                    // Insérer au début de la liste pour voir les plus récents en premier
+                    historyList.insertBefore(li, historyList.firstChild);
+                 }
+
+                 function displayJournalHistory(entries) {
+                    const historyList = document.querySelector('#tracking-history ul');
+                    const loadingMsg = document.getElementById('history-loading');
+                    if (!historyList || !loadingMsg) return;
+
+                    historyList.innerHTML = ''; // Vider la liste actuelle
+                    if (entries.length === 0) {
+                        loadingMsg.textContent = "Votre journal est vide. Ajoutez une entrée ci-dessus.";
+                        loadingMsg.style.display = 'block';
+                    } else {
+                         loadingMsg.style.display = 'none';
+                         entries.forEach(renderJournalEntry);
+                    }
+                 }
+
+                 // Fonction simple pour échapper le HTML et prévenir XSS basique
+                 function escapeHtml(unsafe) {
+                    if (typeof unsafe !== 'string') return unsafe;
+                    return unsafe
+                         .replace(/&/g, "&")
+                         .replace(/</g, "<")
+                         .replace(/>/g, ">")
+                         .replace(/"/g, """)
+                         .replace(/'/g, "'");
+                 }
+
+
+                return {
+                    renderTemplate,
+                    setActiveNavLink,
+                    displayEvaluationResult,
+                    renderJournalEntry,
+                    displayJournalHistory,
+                    escapeHtml
+                };
+            })();
+
+
+            // --- MODULE: Audio (Web Audio API) ---
+            const AudioManager = (() => {
+                let audioContext;
+                let noiseNode = null;
+                let gainNode = null;
+
+                function getContext() {
+                    if (!audioContext) {
+                        try {
+                           window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                           audioContext = new AudioContext();
+                           console.log("AudioContext créé.");
+                        } catch(e) {
+                           console.error("Web Audio API n'est pas supportée par ce navigateur.", e);
+                           alert("Votre navigateur ne supporte pas les fonctionnalités audio nécessaires.");
+                           return null;
+                        }
+                    }
+                    // Reprendre le contexte s'il était suspendu (interaction utilisateur requise)
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    return audioContext;
+                }
+
+                function createWhiteNoise() {
+                    const context = getContext();
+                    if (!context) return null;
+
+                    const bufferSize = 2 * context.sampleRate; // 2 secondes de buffer
+                    const noiseBuffer = context.createBuffer(1, bufferSize, context.sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 2 - 1; // Génère du bruit blanc
+                    }
+
+                    const whiteNoise = context.createBufferSource();
+                    whiteNoise.buffer = noiseBuffer;
+                    whiteNoise.loop = true;
+                    return whiteNoise;
+                }
+
+                function playNoise(type = 'white', volume = 0.1) {
+                    stopNoise(); // Arrête tout bruit précédent
+                    const context = getContext();
+                    if (!context) return;
+
+                    if (type === 'white') {
+                        noiseNode = createWhiteNoise();
+                    } else {
+                        console.warn(`Type de bruit non supporté: ${type}`);
+                        return; // Ne rien faire si le type n'est pas supporté
+                    }
+
+                    if (noiseNode) {
+                        gainNode = context.createGain();
+                        gainNode.gain.setValueAtTime(volume, context.currentTime);
+                        noiseNode.connect(gainNode).connect(context.destination);
+                        noiseNode.start(0);
+                        console.log(`Bruit ${type} démarré (volume: ${volume})`);
+                    }
+                }
+
+                function stopNoise() {
+                    if (noiseNode) {
+                        noiseNode.stop(0);
+                        noiseNode.disconnect();
+                        noiseNode = null;
+                        console.log("Bruit arrêté.");
+                    }
+                    if (gainNode) {
+                        gainNode.disconnect();
+                        gainNode = null;
+                    }
+                    // Ne pas fermer le contexte, il peut être réutilisé
+                }
+
+                function setVolume(volume) {
+                    if (gainNode && audioContext) {
+                        // Utiliser setTargetAtTime pour une transition plus douce
+                        gainNode.gain.setTargetAtTime(volume, audioContext.currentTime, 0.01);
+                         console.log(`Volume ajusté à ${volume}`);
+                    } else if (volume > 0 && !noiseNode) {
+                        // Si le volume est augmenté et qu'aucun son ne joue, on pourrait démarrer le son par défaut?
+                        // Ou simplement ignorer. Pour l'instant, on ignore.
+                        // console.log("Ajustement de volume ignoré: aucun son ne joue.");
+                    }
+                }
+
+                // Tenter d'initialiser le contexte dès que possible après une interaction utilisateur
+                function initContextOnInteraction() {
+                    const initAudio = () => {
+                        getContext(); // Tente de créer/reprendre le contexte
+                        // Une fois le contexte initialisé par une interaction, on retire l'écouteur
+                        document.body.removeEventListener('click', initAudio);
+                        document.body.removeEventListener('touchstart', initAudio);
+                        console.log("Contexte audio prêt après interaction.");
+                    };
+                    document.body.addEventListener('click', initAudio, { once: true });
+                     document.body.addEventListener('touchstart', initAudio, { once: true });
+                }
+
+
+                return {
+                    playNoise,
+                    stopNoise,
+                    setVolume,
+                    initContextOnInteraction
+                };
+            })();
+
+
+            // --- MODULE: Routage ---
+            const Router = (() => {
+                function handleRouteChange() {
+                    const hash = window.location.hash || '#home'; // Défaut à #home
+                    const route = hash.substring(1); // Enlève le '#'
+                    const templateId = `template-${route}`;
+
+                     console.log(`Navigation vers: ${route}`);
+
+                     // Arrêter tout son potentiel lors du changement de page
+                     AudioManager.stopNoise();
+
+                    // Rendre le template correspondant
+                    const renderedElement = UI.renderTemplate(templateId);
+
+                    // Exécuter le code d'initialisation spécifique à la page si nécessaire
+                    if (renderedElement) {
+                        switch (route) {
+                            case 'evaluation':
+                                initEvaluationPage();
+                                break;
+                            case 'hypnose':
+                                initHypnosePage();
+                                break;
+                            case 'sounds':
+                                initSoundsPage();
+                                break;
+                            case 'tracking':
+                                initTrackingPage();
+                                break;
+                            case 'resources':
+                                // Pas d'init spécifique pour l'instant
+                                break;
+                             case 'home':
+                             default:
+                                // Pas d'init spécifique pour l'instant
+                                break;
+                        }
+                    } else {
+                         // Si le template n'existe pas, rediriger vers home
+                         console.warn(`Route inconnue ou template manquant: ${route}, redirection vers #home`);
+                         window.location.hash = '#home';
+                         // Pas besoin de rappeler handleRouteChange ici, le changement de hash va le déclencher
+                    }
+                }
+
+                function init() {
+                    window.addEventListener('hashchange', handleRouteChange);
+                    handleRouteChange(); // Gérer la route initiale au chargement
+                    AudioManager.initContextOnInteraction(); // Préparer l'audio pour une interaction future
+                    initThemeToggle(); // Initialiser le bouton de changement de thème
+                }
+
+                return { init };
+            })();
+
+            // --- Fonctions d'initialisation spécifiques aux pages ---
+
+            function initEvaluationPage() {
+                const form = document.getElementById('evaluation-form');
+                 const resultDiv = document.getElementById('evaluation-result');
+                 const savedProfile = Store.getState().userProfile.initialAssessment;
+
+                // Pré-remplir le formulaire si des données existent
+                if (savedProfile) {
+                    Object.keys(savedProfile).forEach(key => {
+                        const input = form.elements[key];
+                        if (input) {
+                            if (input.type === 'radio') {
+                                // Pour les groupes radio, trouver celui avec la bonne valeur
+                                const radioGroup = form.querySelectorAll(`input[name="${key}"]`);
+                                radioGroup.forEach(radio => {
+                                    if (radio.value === savedProfile[key]) {
+                                        radio.checked = true;
+                                    }
+                                });
+                            } else if (input.type === 'range') {
+                                input.value = savedProfile[key];
+                                // Mettre à jour l'affichage de la valeur du range
+                                if (input.nextElementSibling && input.nextElementSibling.tagName === 'OUTPUT') {
+                                    input.nextElementSibling.textContent = input.value;
+                                }
+                            }
+                            else {
+                                input.value = savedProfile[key];
+                            }
+                        }
+                    });
+                     resultDiv.textContent = "Vos informations précédentes ont été chargées.";
+                     resultDiv.style.color = "inherit";
+                }
+
+
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const data = {};
+                         let score = 0; // Calcul simple pour l'exemple
+                        formData.forEach((value, key) => {
+                            data[key] = value;
+                            // Calcul basique du score (exemple)
+                            if (key.startsWith('impact-') || key === 'intensity-avg') {
+                                score += parseInt(value, 10);
+                            }
+                        });
+                        console.log('Données évaluation:', data);
+                        Store.updateProfile(data);
+                        UI.displayEvaluationResult(score, "Évaluation enregistrée ! Suggestions à venir.");
+                        alert('Évaluation enregistrée localement.');
+                    });
+                }
+            }
+
+            function initHypnosePage() {
+                const menu = document.getElementById('hypnose-menu');
+                const sessionView = document.getElementById('hypnose-session');
+                const startBtn = document.getElementById('start-session-btn');
+                const stopBtn = document.getElementById('stop-session-btn');
+                const sessionTitle = document.getElementById('session-title');
+                const sessionTextContent = document.getElementById('session-text-content');
+                const timerDisplay = sessionView.querySelector('.timer');
+                const noiseSelect = document.getElementById('hypno-noise');
+                const volumeSlider = document.getElementById('hypno-volume');
+
+                let timerInterval = null;
+                let sessionDuration = 0; // en secondes
+                 let currentSessionData = null;
+
+                 // --- Contenu des sessions (exemple très simplifié) ---
+                 const sessionsData = {
+                     debutant: {
+                         title: "Débutant (10 min) - Détente & Conscience",
+                         duration: 10 * 60,
+                         script: [
+                            { time: 0, text: "Installez-vous confortablement. Fermez les yeux ou fixez un point devant vous." },
+                            { time: 15, text: "Prenez trois grandes respirations profondes... Inspirez calmement... Expirez lentement..." },
+                            { time: 60, text: "Portez votre attention sur votre corps. Ressentez le contact avec le support..." },
+                            { time: 180, text: "Laissez les pensées passer comme des nuages dans le ciel..." },
+                            { time: 300, text: "Remarquez les sons autour de vous, sans jugement. Remarquez aussi votre acouphène, comme un son parmi d'autres..." },
+                            { time: 480, text: "Concentrez-vous à nouveau sur votre respiration apaisante..." },
+                            { time: 540, text: "Sentez la détente se diffuser dans tout votre corps..." },
+                            { time: 580, text: "Préparez-vous à revenir. Comptez de 1 à 3. 1... 2... 3... Ouvrez les yeux, étirez-vous." }
+                         ]
+                     },
+                      intermediaire: { title: "Intermédiaire (15 min)", duration: 15 * 60, script: [{ time: 0, text: "Session intermédiaire à venir..." }] },
+                      avance: { title: "Avancé (20 min)", duration: 20 * 60, script: [{ time: 0, text: "Session avancée à venir..." }] }
+                 };
+                 // --- Fin du contenu des sessions ---
+
+                 function formatTime(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                 }
+
+                function updateTimer(remaining) {
+                    timerDisplay.textContent = formatTime(remaining);
+                     // Mettre à jour le texte de la session en fonction du temps écoulé
+                     const elapsed = sessionDuration - remaining;
+                     const currentStep = currentSessionData.script.slice().reverse().find(step => elapsed >= step.time);
+                     if (currentStep && sessionTextContent.textContent !== currentStep.text) {
+                        sessionTextContent.innerHTML = `<p>${UI.escapeHtml(currentStep.text)}</p>`; // Utiliser escapeHtml
+                     }
+                }
+
+                function startSession(sessionKey) {
+                    currentSessionData = sessionsData[sessionKey];
+                     if (!currentSessionData) {
+                         console.error("Session non trouvée:", sessionKey);
+                         return;
+                     }
+
+                    sessionDuration = currentSessionData.duration;
+                    let remainingTime = sessionDuration;
+
+                    sessionTitle.textContent = currentSessionData.title;
+                    sessionTextContent.innerHTML = `<p>${UI.escapeHtml(currentSessionData.script[0]?.text || 'Préparation...')}</p>`; // Premier texte
+                    timerDisplay.textContent = formatTime(remainingTime);
+
+                    menu.classList.add('hidden');
+                    sessionView.classList.remove('hidden');
+                    startBtn.classList.add('hidden');
+                    stopBtn.classList.remove('hidden');
+
+                    // Gérer le bruit de fond
+                    const noiseType = noiseSelect.value;
+                    const volume = parseFloat(volumeSlider.value);
+                    if (noiseType !== 'none' && volume > 0) {
+                        AudioManager.playNoise(noiseType, volume);
+                    } else {
+                         AudioManager.stopNoise();
+                    }
+
+                    // Démarrer le minuteur
+                    updateTimer(remainingTime); // Affichage initial
+                    timerInterval = setInterval(() => {
+                        remainingTime--;
+                        if (remainingTime >= 0) {
+                            updateTimer(remainingTime);
+                        } else {
+                            stopSession(true); // Session terminée
+                        }
+                    }, 1000);
+                }
+
+                function stopSession(completed = false) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    AudioManager.stopNoise();
+
+                    sessionView.classList.add('hidden');
+                    menu.classList.remove('hidden');
+                    stopBtn.classList.add('hidden');
+                    startBtn.classList.remove('hidden'); // Remettre le bouton start d'origine
+                    startBtn.disabled = true; // Désactiver jusqu'à sélection d'une session
+
+                    if (completed) {
+                        alert("Session terminée !");
+                        // Enregistrer la session effectuée (à implémenter)
+                        // Store.addSessionLog(...)
+                    } else {
+                        alert("Session arrêtée.");
+                    }
+                     currentSessionData = null; // Réinitialiser
+                }
+
+                // Event listeners
+                menu.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON' && e.target.dataset.session) {
+                        const sessionKey = e.target.dataset.session;
+                         // Modifier le bouton start pour qu'il lance CETTE session
+                         startBtn.textContent = `Démarrer "${sessionsData[sessionKey].title}"`;
+                         startBtn.onclick = () => startSession(sessionKey);
+                         startBtn.disabled = false;
+                         // Afficher la section session (sans démarrer) pour voir les contrôles
+                         sessionTitle.textContent = sessionsData[sessionKey].title + " (Prêt)";
+                         sessionTextContent.innerHTML = `<p>Préparez-vous pour la session '${sessionsData[sessionKey].title}'. Appuyez sur 'Démarrer'.</p>`;
+                         timerDisplay.textContent = formatTime(sessionsData[sessionKey].duration);
+                         sessionView.classList.remove('hidden');
+                         stopBtn.classList.add('hidden'); // S'assurer que stop est caché
+                         startBtn.classList.remove('hidden');
+                    }
+                });
+
+                stopBtn.addEventListener('click', () => stopSession(false));
+
+                // Gérer le volume du bruit pendant la session (même si pas démarrée)
+                 volumeSlider.addEventListener('input', () => {
+                     const volume = parseFloat(volumeSlider.value);
+                      // Mettre à jour le volume seulement si un bruit est en cours
+                     if (AudioManager.noiseNode) { // Vérifier si un nœud de bruit existe
+                          AudioManager.setVolume(volume);
+                     }
+                 });
+                  noiseSelect.addEventListener('change', () => {
+                      // Si une session est en cours, changer le bruit immédiatement
+                      if (timerInterval) {
+                           const noiseType = noiseSelect.value;
+                           const volume = parseFloat(volumeSlider.value);
+                           if (noiseType === 'none') {
+                               AudioManager.stopNoise();
+                           } else {
+                               AudioManager.playNoise(noiseType, volume);
+                           }
+                      }
+                  });
+
+                 // Initialement, désactiver le bouton Démarrer
+                 startBtn.disabled = true;
+                 startBtn.textContent = "Sélectionnez une session";
+            }
+
+            function initSoundsPage() {
+                const playBtn = document.getElementById('play-sound-btn');
+                const stopBtn = document.getElementById('stop-sound-btn');
+                const volumeSlider = document.getElementById('sound-volume');
+                const volumeOutput = volumeSlider.nextElementSibling; // L'élément <output>
+                const typeSelect = document.getElementById('sound-type-select');
+
+                 function updateVolumeOutput() {
+                    volumeOutput.textContent = parseFloat(volumeSlider.value).toFixed(2);
+                 }
+
+                playBtn.addEventListener('click', () => {
+                    const type = typeSelect.value;
+                    const volume = parseFloat(volumeSlider.value);
+                    AudioManager.playNoise(type, volume);
+                    playBtn.classList.add('hidden');
+                    stopBtn.classList.remove('hidden');
+                });
+
+                stopBtn.addEventListener('click', () => {
+                    AudioManager.stopNoise();
+                    stopBtn.classList.add('hidden');
+                    playBtn.classList.remove('hidden');
+                });
+
+                volumeSlider.addEventListener('input', () => {
+                     const volume = parseFloat(volumeSlider.value);
+                     AudioManager.setVolume(volume);
+                     updateVolumeOutput();
+                });
+
+                 // Initialiser l'affichage du volume
+                 updateVolumeOutput();
+
+                 // Assurer que le bouton stop est caché initialement
+                 stopBtn.classList.add('hidden');
+                 playBtn.classList.remove('hidden');
+            }
+
+            function initTrackingPage() {
+                 const form = document.getElementById('tracking-form');
+                 const clearDataBtn = document.getElementById('clear-data-btn');
+
+                 // Charger et afficher l'historique existant
+                 const entries = Store.getJournalEntries();
+                 UI.displayJournalHistory(entries);
+
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const newEntry = {
+                            intensity: formData.get('intensity'),
+                            notes: formData.get('notes')
+                        };
+                         const savedEntry = Store.addJournalEntry(newEntry);
+                         UI.renderJournalEntry(savedEntry); // Ajouter la nouvelle entrée à la liste affichée
+                        form.reset(); // Vider le formulaire
+                        // Réinitialiser l'affichage du range
+                         const intensityRange = document.getElementById('tracking-intensity');
+                         if(intensityRange && intensityRange.nextElementSibling) {
+                            intensityRange.nextElementSibling.textContent = intensityRange.value;
+                         }
+                         alert('Entrée ajoutée au journal.');
+                    });
+                }
+
+                if (clearDataBtn) {
+                    clearDataBtn.addEventListener('click', () => {
+                        Store.clearAllData();
+                        // La page sera rechargée par la fonction clearAllData si succès
+                    });
+                }
+
+                 // Activer le bouton Exporter (pour l'instant, juste un log)
+                 const exportBtn = document.getElementById('export-data-btn');
+                 if (exportBtn) {
+                     exportBtn.disabled = false; // Activer le bouton
+                     exportBtn.textContent = "Exporter les données (JSON)";
+                     exportBtn.addEventListener('click', () => {
+                         const data = Store.getState();
+                         const dataStr = JSON.stringify(data, null, 2); // Indenté pour lisibilité
+                         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+                         const exportFileDefaultName = `acouphenes_zen_data_${new Date().toISOString().split('T')[0]}.json`;
+
+                         const linkElement = document.createElement('a');
+                         linkElement.setAttribute('href', dataUri);
+                         linkElement.setAttribute('download', exportFileDefaultName);
+                         linkElement.click();
+                         linkElement.remove();
+                         console.log("Exportation JSON déclenchée.");
+                     });
+                 }
+            }
+
+            function initThemeToggle() {
+                const toggleButton = document.getElementById('theme-toggle');
+                if (toggleButton) {
+                    toggleButton.addEventListener('click', () => {
+                        const currentTheme = Store.getThemePreference();
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        Store.updateThemePreference(newTheme);
+                        Store.applyThemePreference(); // Met à jour le body et le bouton
+                    });
+                    // Appliquer le thème initial au chargement (déjà fait dans Store.load)
+                    Store.applyThemePreference();
+                }
+            }
+
+
+            // --- DÉMARRAGE DE L'APPLICATION ---
+            Router.init();
+
+        }); // Fin de DOMContentLoaded
+    </script>
+</body>
+</html>
