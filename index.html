@@ -1200,6 +1200,28 @@
 						currentUtterance = null;
 					};
 
+
+					// Dans TTSManager...
+					currentUtterance.onerror = (e) => {
+						console.error('Erreur TTS DETECTEE:', e.error, 'Pour texte:', currentUtterance.text.substring(0, 50) + '...'); // Log plus d'info!
+
+						// N'affiche le toast que si l'erreur N'EST PAS 'interrupted'
+						if (e.error !== 'interrupted') {
+							UI.showToast("Erreur lecture vocale.", "error");
+							console.warn("Une erreur TTS inattendue est survenue:", e.error); // Log pour insister
+						} else {
+							// C'est une interruption normale (cancel/stop), on l'ignore pour le toast.
+							console.log("Erreur TTS 'interrupted' ignorée (probablement arrêt manuel ou cancel normal).");
+						}
+
+						isCurrentlySpeakingInternal = false; // Important : Mettre à jour l'état même si on ignore le toast
+						currentUtterance = null;
+					};
+
+
+
+
+
 					try {
 						// Mise à jour état AVANT speak, au cas où 'onstart' ne se déclencherait pas vite
 						// isCurrentlySpeakingInternal = true; // Peut-être redondant avec onstart mais plus sûr ? Testons SANS d'abord.
@@ -1381,23 +1403,46 @@
 
 			
             function startHypnoSession(sessionKey) {
-				lastSpokenText = null;
+                lastSpokenText = null; // Initialisation correcte
                 console.log(`Starting session: ${sessionKey}`);
                 hypnoCurrentSessionData = sessionsData[sessionKey]; if (!hypnoCurrentSessionData) { UI.showToast("Erreur session.", "error"); return; }
                 const menu = document.getElementById('hypnose-menu'); const sessionView = document.getElementById('hypnose-session'); const startBtn = document.getElementById('start-session-btn'); const stopBtn = document.getElementById('stop-session-btn'); const timerDisplay = sessionView?.querySelector('.timer'); const sessionTextContent = document.getElementById('session-text-content'); const stepIndicator = document.getElementById('session-step-indicator'); const noiseSelect = document.getElementById('hypno-noise'); const volumeSlider = document.getElementById('hypno-volume'); const ttsToggle = document.getElementById('hypno-tts-enable');
+
                 hypnoNoiseType = noiseSelect.value; hypnoVolume = parseFloat(volumeSlider.value); hypnoTtsEnabled = ttsToggle.checked;
                 hypnoSessionCompleted = false;
+
                 const firstStepText = hypnoCurrentSessionData.script[0]?.text || 'Préparation...';
                 const firstStepTextEscaped = Utils.escapeHtml(firstStepText);
                 sessionTextContent.innerHTML = `<p data-raw-text="${firstStepTextEscaped}">${firstStepTextEscaped}</p>`;
-                stepIndicator.textContent = `Étape 1 / ${hypnoCurrentSessionData.script.length}`; timerDisplay.textContent = Utils.formatTime(hypnoCurrentSessionData.duration);
+                stepIndicator.textContent = `Étape 1 / ${hypnoCurrentSessionData.script.length}`;
+                timerDisplay.textContent = Utils.formatTime(hypnoCurrentSessionData.duration);
+
                 menu.classList.add('hidden'); sessionView.classList.remove('hidden'); startBtn.classList.add('hidden'); stopBtn.classList.remove('hidden'); noiseSelect.disabled = true; volumeSlider.disabled = true; ttsToggle.disabled = true;
+
                 console.log(`Audio: ${hypnoNoiseType} vol ${hypnoVolume}. TTS: ${hypnoTtsEnabled}`);
-                if (hypnoNoiseType !== 'none' && hypnoVolume > 0) { const audioStarted = AudioManager.playNoise(hypnoNoiseType, hypnoVolume); if (!audioStarted) UI.showToast("Problème audio.", "warning"); } else AudioManager.stopNoise();
-                if (hypnoTtsEnabled && TTSManager.isSupported() && hypnoCurrentSessionData.script[0]) { console.log("TTS speaking first step..."); TTSManager.speak(firstStepText); } // Speak raw text
+                if (hypnoNoiseType !== 'none' && hypnoVolume > 0) {
+                    const audioStarted = AudioManager.playNoise(hypnoNoiseType, hypnoVolume);
+                    if (!audioStarted) UI.showToast("Problème audio.", "warning");
+                } else {
+                     AudioManager.stopNoise();
+                 }
+
+                // ------ Supprimer ou commenter la condition et l'appel ci-dessous ------
+                /*
+                if (hypnoTtsEnabled && TTSManager.isSupported() && hypnoCurrentSessionData.script[0]) {
+                    console.log("TTS speaking first step... (Explicit call removed)"); // Modifié le log si commenté
+                    // TTSManager.speak(firstStepText); // << LIGNE À SUPPRIMER/COMMENTER
+                }
+                */
+                // --------------------------------------------------------------------
+
                 hypnoSessionEndTime = Date.now() + hypnoCurrentSessionData.duration * 1000;
-                updateHypnoTimer(); if(hypnoTimerInterval) clearInterval(hypnoTimerInterval);
+
+                // L'appel manuel à updateHypnoTimer ci-dessous va gérer la lecture de la 1ère étape
+                updateHypnoTimer();
+                if(hypnoTimerInterval) clearInterval(hypnoTimerInterval);
                 hypnoTimerInterval = setInterval(updateHypnoTimer, 500);
+
                 UI.showToast(`Session démarrée.`, "info");
             }
 
