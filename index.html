@@ -1150,27 +1150,95 @@
              })();
 
             // --- MODULE: Synthèse Vocale (TTS) ---
-            const TTSManager = (() => {
-                let synthesis = window.speechSynthesis; let isSupported = false; let currentUtterance = null;
-                function init() { if ('speechSynthesis' in window) { isSupported = true; console.log("TTS supporté."); try { synthesis.getVoices(); } catch(e) { console.warn("Erreur accès voices:", e); } if (synthesis.onvoiceschanged !== undefined) synthesis.onvoiceschanged = () => console.log("Voix TTS màj."); } else { console.warn("TTS non supporté."); } }
-                function speak(text) {
-                    const audioCtx = AudioManager.getContext();
-                    if (!audioCtx || audioCtx.state !== 'running') { console.warn("TTS speak ignoré: AudioContext non actif."); audioCtx?.resume().then(() => speak(text)).catch(err => { console.error("Échec reprise AudioContext pour TTS:", err); UI.showToast("Activez l'audio (clic?) pour la lecture vocale.", "warning"); }); return false; }
-                    if (!isSupported || !text) { console.warn("TTS speak ignoré: non supporté ou vide"); return false; }
-                    cancel();
-                    currentUtterance = new SpeechSynthesisUtterance(text);
-                    const voices = synthesis.getVoices(); let frVoice = voices.find(v => v.lang === 'fr-FR') || voices.find(v => v.lang.startsWith('fr')); if (frVoice) currentUtterance.voice = frVoice; else console.warn("Voix FR non trouvée.");
-                    currentUtterance.lang = 'fr-FR'; currentUtterance.pitch = 1; currentUtterance.rate = 0.9;
-                    currentUtterance.onend = () => { currentUtterance = null; };
-                    currentUtterance.onerror = (e) => { console.error('Erreur TTS:', e.error); UI.showToast("Erreur lecture vocale.", "error"); currentUtterance = null; };
-                    try { synthesis.speak(currentUtterance); console.log("TTS: speaking..."); return true; }
-                    catch (e) { console.error("Erreur speak:", e); UI.showToast("Impossible démarrer lecture.", "error"); return false; }
-                 }
-                function cancel() { if (synthesis && synthesis.speaking) { synthesis.cancel(); console.log("TTS: cancelled"); currentUtterance = null; } }
-                function isSpeaking() { return synthesis && synthesis.speaking; }
-                init();
-                return { isSupported: () => isSupported, speak, cancel, isSpeaking };
-            })();
+			const TTSManager = (() => {
+				let synthesis = window.speechSynthesis;
+				let isSupported = false;
+				let currentUtterance = null;
+				let isCurrentlySpeakingInternal = false; // Notre propre état
+
+				function init() {
+					if ('speechSynthesis' in window) {
+						isSupported = true;
+						console.log("TTS supporté.");
+						try { synthesis.getVoices(); } catch(e) { console.warn("Erreur accès voices:", e); }
+						if (synthesis.onvoiceschanged !== undefined) synthesis.onvoiceschanged = () => console.log("Voix TTS màj.");
+					} else {
+						console.warn("TTS non supporté.");
+					}
+				}
+
+				function speak(text) {
+					const audioCtx = AudioManager.getContext();
+					// ... (vérification contexte audio comme avant) ...
+					if (!isSupported || !text) { console.warn("TTS speak ignoré: non supporté ou vide"); return false; }
+
+					// On utilise notre état interne pour voir si on doit cancel
+					if (isCurrentlySpeakingInternal) {
+						 cancel(); // Annule si notre état dit qu'on parle encore
+					}
+
+					currentUtterance = new SpeechSynthesisUtterance(text);
+					// ... (configuration voix, lang, pitch, rate comme avant) ...
+
+					currentUtterance.onstart = () => { // Utiliser onstart si disponible
+						console.log("TTS: onstart event");
+						isCurrentlySpeakingInternal = true;
+					};
+
+					currentUtterance.onend = () => {
+						console.log("TTS: onend event");
+						isCurrentlySpeakingInternal = false;
+						currentUtterance = null;
+						 // Optionnel: Déclencher un événement pour signifier la fin
+						 // document.dispatchEvent(new CustomEvent('ttssegmentend'));
+					};
+
+					currentUtterance.onerror = (e) => {
+						console.error('Erreur TTS:', e.error);
+						UI.showToast("Erreur lecture vocale.", "error");
+						isCurrentlySpeakingInternal = false; // S'assurer que l'état est false en cas d'erreur
+						currentUtterance = null;
+					};
+
+					try {
+						// Mise à jour état AVANT speak, au cas où 'onstart' ne se déclencherait pas vite
+						// isCurrentlySpeakingInternal = true; // Peut-être redondant avec onstart mais plus sûr ? Testons SANS d'abord.
+						synthesis.speak(currentUtterance);
+						console.log("TTS: synthesis.speak() appelé.");
+						// ATTENTION: 'speaking' peut ne pas être vrai immédiatement ici.
+						// On se fie maintenant à nos callbacks onstart/onend/onerror
+						return true;
+					}
+					catch (e) {
+						console.error("Erreur synthesis.speak:", e);
+						UI.showToast("Impossible démarrer lecture.", "error");
+						isCurrentlySpeakingInternal = false; // Reset état si échec
+						return false;
+					}
+				 }
+
+				function cancel() {
+					if (synthesis && (synthesis.speaking || synthesis.pending || isCurrentlySpeakingInternal)) { // Vérifier plusieurs états
+						console.log("TTS: cancel() demandé.");
+						synthesis.cancel(); // Appel API
+						isCurrentlySpeakingInternal = false; // Forcer notre état interne à false
+						currentUtterance = null; // Nettoyer référence
+					}
+				}
+
+				// Notre fonction d'état interne
+				function isSpeaking() {
+					// On pourrait retourner :
+					// return isCurrentlySpeakingInternal; // Option 1: Se fier uniquement à notre état
+					// return synthesis.speaking; // Option 2: Utiliser l'état natif (ce qui était fait avant)
+					// Option 3: Combiner? Peut-être trop complexe.
+					// Essayons Option 1: Se fier à notre état géré par les événements.
+					return isCurrentlySpeakingInternal;
+				}
+
+				init();
+				return { isSupported: () => isSupported, speak, cancel, isSpeaking };
+			})();
 
             // --- Déclaration Globale des Handlers ---
             const pageHandlers = {}; // Déclarer l'objet ici
@@ -1229,9 +1297,42 @@
                  avance: { title: "Avancé (env. 20 min) - Modification de la Perception", duration: 1200, script: [ { time: 0, text: "Installez-vous confortablement. Fermez les yeux et prenez quelques instants pour entrer dans un état de relaxation profonde, en utilisant la technique qui vous convient le mieux (respiration, scan corporel...)." }, { time: 60, text: "Une fois bien détendu, portez votre attention sur votre acouphène. Observez-le avec une curiosité détachée, comme un scientifique observe un phénomène." }, { time: 120, text: "Quelles sont ses caractéristiques ? Est-il aigu, grave ? Continu, pulsatile ? Est-il stable ou changeant ? Essayez de le décrire mentalement, sans jugement de valeur ('gênant', 'horrible')." }, { time: 180, text: "Imaginez maintenant que vous avez des 'cadrans de contrôle' mentaux pour ce son." }, { time: 240, text: "Visualisez un cadran pour le volume. Imaginez que vous tournez ce cadran très lentement vers le bas. Même si le son réel ne change pas, notez toute modification dans votre perception ou votre réaction émotionnelle." }, { time: 330, text: "Visualisez un cadran pour la 'tonalité' ou la 'qualité' du son. Imaginez que vous pouvez le rendre légèrement plus grave, ou plus doux, ou plus diffus. Jouez mentalement avec ces caractéristiques." }, { time: 420, text: "Imaginez un cadran pour la 'localisation'. Pouvez-vous mentalement déplacer le son ? Le rendre plus externe, plus lointain ? Le laisser flotter hors de votre tête ?" }, { time: 510, text: "Visualisez un cadran pour l''émotion' associée au son. Imaginez tourner ce cadran de 'gêne' ou 'anxiété' vers 'neutre' ou même 'acceptation'." }, { time: 600, text: "Maintenant, laissez les cadrans et portez votre attention sur une sensation agréable dans votre corps. Peut-être la chaleur de vos mains, la détente de vos épaules, ou le calme de votre respiration." }, { time: 690, text: "Amplifiez cette sensation agréable. Laissez-la grandir et se diffuser dans tout votre corps, créant un sentiment général de bien-être." }, { time: 780, text: "Imaginez que ce bien-être est comme une bulle protectrice autour de vous. L'acouphène peut être là, à l'extérieur ou à l'intérieur de la bulle, mais il ne perturbe pas le calme à l'intérieur." }, { time: 900, text: "L'acouphène est juste un son. Il n'a que le pouvoir que vous lui donnez. Vous apprenez à lui retirer ce pouvoir émotionnel." }, { time: 1020, text: "Ancrez cette sensation de contrôle et de calme en vous. Prenez une profonde inspiration et expirez lentement." }, { time: 1140, text: "Rappelez-vous que cette capacité à modifier votre perception s'affine avec la pratique régulière." }, { time: 1170, text: "Commencez maintenant à revenir progressivement à votre état de conscience habituel. Sentez l'énergie revenir dans votre corps. Bougez les doigts, les orteils." }, { time: 1190, text: "Quand vous êtes prêt, ouvrez les yeux, en gardant ce sentiment de perspective et de calme intérieur renouvelé." } ] }
              };
 
-                        // Fonction updateHypnoTimer MISE A JOUR v2
+            // Fonction updateHypnoTimer MISE A JOUR v2
+
+            // Variable externe (à réinitialiser dans start/stop)
+            let lastSpokenText = null;
+
             function updateHypnoTimer() {
-                // ... (calculs de temps, recherche de currentStep comme avant) ...
+                const now = Date.now();
+                // Vérifier si hypnoCurrentSessionData existe toujours (sécurité post-arrêt)
+                 if (!hypnoCurrentSessionData) {
+                     if (hypnoTimerInterval) clearInterval(hypnoTimerInterval);
+                     return;
+                 }
+
+                const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
+
+                // --- RÉCUPÉRATION DES ÉLÉMENTS DOM ICI ---
+                const timerDisplay = document.querySelector('#hypnose-session .timer');
+                const textContent = document.getElementById('session-text-content');
+                const stepIndicator = document.getElementById('session-step-indicator');
+                // --- FIN RÉCUPÉRATION ---
+
+                 // Vérifier si les éléments existent avant de les utiliser
+                 if (!timerDisplay || !textContent || !stepIndicator) {
+                     console.warn("[updateHypnoTimer] Missing required DOM elements.");
+                     if (hypnoTimerInterval) clearInterval(hypnoTimerInterval); // Arrêter si l'UI est cassée
+                     return;
+                 }
+
+                timerDisplay.textContent = Utils.formatTime(remaining);
+
+                const elapsed = hypnoCurrentSessionData.duration - remaining;
+
+                // --- CALCUL DE currentStep ICI ---
+                const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
+                const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
+                // --- FIN CALCUL ---
 
                 if (currentStep) {
                     const currentTextElement = textContent.querySelector('p');
@@ -1239,43 +1340,48 @@
                     const currentStepTextRaw = currentStep.text;
                     const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
 
-                    // Variable pour savoir si le texte a changé CE TICK
-                    let textJustChanged = false;
-
-                    // Mettre à jour l'affichage SEULEMENT si le texte a changé
+                    // Update display if needed
                     if (!displayedTextEscaped || displayedTextEscaped !== currentStepTextEscaped) {
                         textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
-                        textContent.scrollTop = textContent.scrollHeight;
-                        textJustChanged = true; // Marquer que le texte a changé
+                        textContent.scrollTop = textContent.scrollHeight; // Scroll auto
                         console.log(`[updateHypnoTimer] Affichage mis à jour pour: "${currentStepTextRaw.substring(0,30)}..."`);
                     }
 
-                    // Déclencher la parole SEULEMENT si :
-                    // 1. TTS activé ET supporté
-                    // 2. Le texte vient JUSTE d'être changé (pour éviter les répétitions)
-                    if (textJustChanged && hypnoTtsEnabled && TTSManager.isSupported()) {
-                        console.log(`[updateHypnoTimer] Changement texte détecté. Demande de lecture TTS pour: "${currentStepTextRaw.substring(0, 30)}..." (Cancel si nécessaire)`);
-                        // On annule systématiquement avant de parler la nouvelle étape
-                        // pour gérer le cas où l'ancienne parole était encore en cours.
-                        TTSManager.cancel();
-                        TTSManager.speak(currentStepTextRaw); // Parler le texte BRUT
+                    // --- Speech Logic Simplifiée ---
+                    if (hypnoTtsEnabled && TTSManager.isSupported() && currentStepTextRaw !== lastSpokenText) {
+                        console.log(`[updateHypnoTimer] Nouvelle étape texte détectée ("${currentStepTextRaw.substring(0, 30)}..."). Tentative lecture (speak gère cancel).`);
+                        const spoken = TTSManager.speak(currentStepTextRaw); // speak() interne gère cancel() si isCurrentlySpeakingInternal est true
+                        if (spoken) {
+                            lastSpokenText = currentStepTextRaw;
+                            console.log(`[updateHypnoTimer] Marqué "${currentStepTextRaw.substring(0, 30)}..." comme dernier texte demandé.`);
+                        } else {
+                            console.warn("[updateHypnoTimer] TTSManager.speak a échoué, ne met pas à jour lastSpokenText.");
+                            // Si speak échoue, peut-être réinitialiser lastSpokenText pour permettre une nouvelle tentative ?
+                            // lastSpokenText = null; // A tester si nécessaire
+                        }
                     }
-                    // Retrait de l'ancien bloc 'else if (TTSManager.isSpeaking())' car non pertinent ici.
-                    // Si le texte n'a pas changé (textJustChanged est false), on ne relance PAS la parole.
 
-                    // Mise à jour indicateur étape (comme avant)
-                    if (stepIndicator) { const totalSteps = hypnoCurrentSessionData.script.length; const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex; stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`; }
+                    // --- Update step indicator ---
+                    const totalSteps = hypnoCurrentSessionData.script.length;
+                    const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex;
+                    stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`;
+
+                } else {
+                    // Pas d'étape courante trouvée (peut arriver au tout début ou en cas d'erreur)
+                    stepIndicator.textContent = 'Chargement étape...';
                 }
 
-                // Arrêt session si temps écoulé (comme avant)
+                // --- Handle session end ---
                 if (remaining <= 0 && hypnoTimerInterval) {
                      console.log("Hypno timer 0 détecté dans updateHypnoTimer.");
                      hypnoSessionCompleted = true;
-                     stopHypnoSession();
+                     stopHypnoSession(); // Arrête le timer via clearInterval dans stopHypnoSession
                  }
-            }
+            }			
+
 			
             function startHypnoSession(sessionKey) {
+				lastSpokenText = null;
                 console.log(`Starting session: ${sessionKey}`);
                 hypnoCurrentSessionData = sessionsData[sessionKey]; if (!hypnoCurrentSessionData) { UI.showToast("Erreur session.", "error"); return; }
                 const menu = document.getElementById('hypnose-menu'); const sessionView = document.getElementById('hypnose-session'); const startBtn = document.getElementById('start-session-btn'); const stopBtn = document.getElementById('stop-session-btn'); const timerDisplay = sessionView?.querySelector('.timer'); const sessionTextContent = document.getElementById('session-text-content'); const stepIndicator = document.getElementById('session-step-indicator'); const noiseSelect = document.getElementById('hypno-noise'); const volumeSlider = document.getElementById('hypno-volume'); const ttsToggle = document.getElementById('hypno-tts-enable');
@@ -1296,7 +1402,8 @@
             }
 
             function stopHypnoSession() {
-                console.log("Stopping hypno session."); const sessionEndedNaturally = hypnoSessionCompleted; if(hypnoTimerInterval) clearInterval(hypnoTimerInterval); hypnoTimerInterval = null; AudioManager.stopNoise(); TTSManager.cancel();
+                lastSpokenText = null
+				console.log("Stopping hypno session."); const sessionEndedNaturally = hypnoSessionCompleted; if(hypnoTimerInterval) clearInterval(hypnoTimerInterval); hypnoTimerInterval = null; AudioManager.stopNoise(); TTSManager.cancel();
                 if (hypnoCurrentSessionData) { const sessionKey = Object.keys(sessionsData).find(key => sessionsData[key] === hypnoCurrentSessionData); if(sessionKey) { Store.addSessionLog({ sessionKey, duration: hypnoCurrentSessionData.duration, completed: sessionEndedNaturally }); console.log(`Session log: ${sessionEndedNaturally ? 'complète' : 'arrêtée'}`); } else { console.error("Could not find session key for logging.");} }
                 const menu = document.getElementById('hypnose-menu'); const sessionView = document.getElementById('hypnose-session'); const startBtn = document.getElementById('start-session-btn'); const stopBtn = document.getElementById('stop-session-btn'); const noiseSelect = document.getElementById('hypno-noise'); const volumeSlider = document.getElementById('hypno-volume'); const ttsToggle = document.getElementById('hypno-tts-enable');
                 if (sessionView) sessionView.classList.add('hidden'); if (menu) menu.classList.remove('hidden'); if (stopBtn) stopBtn.classList.add('hidden'); if (startBtn) { startBtn.classList.remove('hidden'); startBtn.textContent = "Sélectionnez une session"; startBtn.disabled = true; startBtn.onclick = null; }
