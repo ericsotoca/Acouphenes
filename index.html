@@ -1167,77 +1167,89 @@
 					}
 				}
 
-				function speak(text) {
-					const audioCtx = AudioManager.getContext();
-					// ... (vérification contexte audio comme avant) ...
-					if (!isSupported || !text) { console.warn("TTS speak ignoré: non supporté ou vide"); return false; }
+            function speak(text) {
+                const audioCtx = AudioManager.getContext();
+                // Vérification contexte audio (peut rester comme avant ou être affinée si besoin)
+                 if (!audioCtx || audioCtx.state !== 'running') {
+                     console.warn("TTS speak ignoré: AudioContext non actif.");
+                     audioCtx?.resume().then(() => speak(text)).catch(err => { // Tente de reprendre et réessayer
+                         console.error("Échec reprise AudioContext pour TTS:", err);
+                         UI.showToast("Activez l'audio (clic?) pour la lecture vocale.", "warning");
+                     });
+                     return false; // Échec initial car contexte non prêt
+                 }
 
-					// On utilise notre état interne pour voir si on doit cancel
-					if (isCurrentlySpeakingInternal) {
-						 cancel(); // Annule si notre état dit qu'on parle encore
-					}
+                if (!isSupported || !text) { console.warn("TTS speak ignoré: non supporté ou vide"); return false; }
 
-					currentUtterance = new SpeechSynthesisUtterance(text);
-					// ... (configuration voix, lang, pitch, rate comme avant) ...
+                // Annule la parole précédente SI notre état interne dit qu'on parle encore
+                if (isCurrentlySpeakingInternal) {
+                     // console.log("TTS speak: Cancel appelé car isCurrentlySpeakingInternal=true"); // Log optionnel
+                     cancel();
+                } else {
+                     // console.log("TTS speak: Pas de cancel nécessaire (isCurrentlySpeakingInternal=false)"); // Log optionnel
+                 }
 
-					currentUtterance.onstart = () => { // Utiliser onstart si disponible
-						console.log("TTS: onstart event");
-						isCurrentlySpeakingInternal = true;
-					};
+                currentUtterance = new SpeechSynthesisUtterance(text);
 
-					currentUtterance.onend = () => {
-						console.log("TTS: onend event");
-						isCurrentlySpeakingInternal = false;
-						currentUtterance = null;
-						 // Optionnel: Déclencher un événement pour signifier la fin
-						 // document.dispatchEvent(new CustomEvent('ttssegmentend'));
-					};
-
-					currentUtterance.onerror = (e) => {
-						console.error('Erreur TTS:', e.error);
-						UI.showToast("Erreur lecture vocale.", "error");
-						isCurrentlySpeakingInternal = false; // S'assurer que l'état est false en cas d'erreur
-						currentUtterance = null;
-					};
-
-
-					// Dans TTSManager...
-					currentUtterance.onerror = (e) => {
-						console.error('Erreur TTS DETECTEE:', e.error, 'Pour texte:', currentUtterance.text.substring(0, 50) + '...'); // Log plus d'info!
-
-						// N'affiche le toast que si l'erreur N'EST PAS 'interrupted'
-						if (e.error !== 'interrupted') {
-							UI.showToast("Erreur lecture vocale.", "error");
-							console.warn("Une erreur TTS inattendue est survenue:", e.error); // Log pour insister
-						} else {
-							// C'est une interruption normale (cancel/stop), on l'ignore pour le toast.
-							console.log("Erreur TTS 'interrupted' ignorée (probablement arrêt manuel ou cancel normal).");
-						}
-
-						isCurrentlySpeakingInternal = false; // Important : Mettre à jour l'état même si on ignore le toast
-						currentUtterance = null;
-					};
+                // --- AJOUT/CORRECTION CONFIGURATION VOIX/LANGUE ---
+                const voices = synthesis.getVoices();
+                let frVoice = voices.find(v => v.lang === 'fr-FR') || voices.find(v => v.lang.startsWith('fr'));
+                if (frVoice) {
+                    currentUtterance.voice = frVoice;
+                    // console.log("Voix FR trouvée et assignée:", frVoice.name); // Log optionnel
+                 } else {
+                     console.warn("Voix FR non trouvée, utilise la voix par défaut.");
+                 }
+                currentUtterance.lang = 'fr-FR'; // Toujours forcer la langue pour l'utterance
+                currentUtterance.pitch = 1;
+                currentUtterance.rate = 0.9; // Vitesse légèrement réduite
+                // --- FIN AJOUT/CORRECTION ---
 
 
+                currentUtterance.onstart = () => {
+                    console.log("TTS: onstart event");
+                    isCurrentlySpeakingInternal = true;
+                };
+
+                currentUtterance.onend = () => {
+                    console.log("TTS: onend event");
+                    isCurrentlySpeakingInternal = false;
+                    currentUtterance = null;
+                };
+
+                // --- Garder uniquement CE gestionnaire onerror ---
+                currentUtterance.onerror = (e) => {
+                    const errorMsg = e.error || 'unknown'; // Prévoir le cas où e.error est null/undefined
+                    const utteranceText = currentUtterance ? currentUtterance.text.substring(0, 50) + '...' : 'N/A';
+                    console.error('Erreur TTS DETECTEE:', errorMsg, 'Pour texte:', utteranceText);
+
+                    if (errorMsg !== 'interrupted') {
+                        UI.showToast("Erreur lecture vocale.", "error");
+                        console.warn("Une erreur TTS inattendue est survenue:", errorMsg);
+                    } else {
+                        console.log("Erreur TTS 'interrupted' ignorée (probablement arrêt manuel ou cancel normal).");
+                    }
+
+                    isCurrentlySpeakingInternal = false;
+                    currentUtterance = null; // S'assurer que la référence est nettoyée
+                };
+                // --- Fin du seul gestionnaire onerror ---
 
 
-
-					try {
-						// Mise à jour état AVANT speak, au cas où 'onstart' ne se déclencherait pas vite
-						// isCurrentlySpeakingInternal = true; // Peut-être redondant avec onstart mais plus sûr ? Testons SANS d'abord.
-						synthesis.speak(currentUtterance);
-						console.log("TTS: synthesis.speak() appelé.");
-						// ATTENTION: 'speaking' peut ne pas être vrai immédiatement ici.
-						// On se fie maintenant à nos callbacks onstart/onend/onerror
-						return true;
-					}
-					catch (e) {
-						console.error("Erreur synthesis.speak:", e);
-						UI.showToast("Impossible démarrer lecture.", "error");
-						isCurrentlySpeakingInternal = false; // Reset état si échec
-						return false;
-					}
-				 }
+                try {
+                    synthesis.speak(currentUtterance);
+                    console.log("TTS: synthesis.speak() appelé pour:", text.substring(0,30)+"...");
+                    // isCurrentlySpeakingInternal sera mis à true par onstart
+                    return true; // Succès de la *demande* de parole
+                }
+                catch (e) {
+                    console.error("Erreur lors de l'appel à synthesis.speak:", e);
+                    UI.showToast("Impossible démarrer lecture.", "error");
+                    isCurrentlySpeakingInternal = false; // Reset état si échec immédiat
+                    currentUtterance = null; // Nettoyer référence
+                    return false; // Échec de la demande
+                }
+             }
 
 				function cancel() {
 					if (synthesis && (synthesis.speaking || synthesis.pending || isCurrentlySpeakingInternal)) { // Vérifier plusieurs états
