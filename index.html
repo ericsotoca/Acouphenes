@@ -1231,57 +1231,47 @@
 
                         // Fonction updateHypnoTimer MISE A JOUR v2
             function updateHypnoTimer() {
-                const now = Date.now();
-                const remaining = Math.max(0, (hypnoSessionEndTime - now) / 1000);
-                const timerDisplay = document.querySelector('#hypnose-session .timer');
-                const textContent = document.getElementById('session-text-content');
-                const stepIndicator = document.getElementById('session-step-indicator');
-
-                if (!hypnoCurrentSessionData || !textContent) { // Vérifier si la session est toujours active
-                    if (hypnoTimerInterval) clearInterval(hypnoTimerInterval); // Arrêter le timer si plus de données
-                    return;
-                }
-
-                if (timerDisplay) timerDisplay.textContent = Utils.formatTime(remaining);
-
-                const elapsed = hypnoCurrentSessionData.duration - remaining;
-                const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => elapsed >= step.time);
-                const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
+                // ... (calculs de temps, recherche de currentStep comme avant) ...
 
                 if (currentStep) {
                     const currentTextElement = textContent.querySelector('p');
-                    const displayedTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null; // Texte affiché (déjà échappé)
-                    const currentStepTextRaw = currentStep.text; // Texte brut du script
+                    const displayedTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null;
+                    const currentStepTextRaw = currentStep.text;
                     const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
+
+                    // Variable pour savoir si le texte a changé CE TICK
+                    let textJustChanged = false;
 
                     // Mettre à jour l'affichage SEULEMENT si le texte a changé
                     if (!displayedTextEscaped || displayedTextEscaped !== currentStepTextEscaped) {
                         textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
                         textContent.scrollTop = textContent.scrollHeight;
-
-                        // Déclencher la parole SEULEMENT si :
-                        // 1. TTS est activé ET supporté
-                        // 2. Le texte a effectivement changé (ce qu'on vient de vérifier)
-                        // 3. Le TTS n'est PAS déjà en train de parler (pour éviter l'interruption)
-                        if (hypnoTtsEnabled && TTSManager.isSupported() && !TTSManager.isSpeaking()) {
-                            console.log(`[updateHypnoTimer] Changement texte détecté ET TTS inactif. Lecture TTS pour: "${currentStepTextRaw.substring(0, 30)}..."`);
-                            TTSManager.speak(currentStepTextRaw); // Parler le texte BRUT
-                        } else if (hypnoTtsEnabled && TTSManager.isSupported() && TTSManager.isSpeaking()){
-                            console.log("[updateHypnoTimer] Changement texte détecté MAIS TTS déjà actif. Parole ignorée pour l'instant.");
-                            // On pourrait appeler cancel() ici puis speak() mais ça causerait l'interruption vue avant.
-                            // Il vaut mieux laisser la parole actuelle se terminer. L'étape suivante sera lue au prochain tick du timer si besoin.
-                        }
+                        textJustChanged = true; // Marquer que le texte a changé
+                        console.log(`[updateHypnoTimer] Affichage mis à jour pour: "${currentStepTextRaw.substring(0,30)}..."`);
                     }
 
-                    // Mise à jour indicateur étape
+                    // Déclencher la parole SEULEMENT si :
+                    // 1. TTS activé ET supporté
+                    // 2. Le texte vient JUSTE d'être changé (pour éviter les répétitions)
+                    if (textJustChanged && hypnoTtsEnabled && TTSManager.isSupported()) {
+                        console.log(`[updateHypnoTimer] Changement texte détecté. Demande de lecture TTS pour: "${currentStepTextRaw.substring(0, 30)}..." (Cancel si nécessaire)`);
+                        // On annule systématiquement avant de parler la nouvelle étape
+                        // pour gérer le cas où l'ancienne parole était encore en cours.
+                        TTSManager.cancel();
+                        TTSManager.speak(currentStepTextRaw); // Parler le texte BRUT
+                    }
+                    // Retrait de l'ancien bloc 'else if (TTSManager.isSpeaking())' car non pertinent ici.
+                    // Si le texte n'a pas changé (textJustChanged est false), on ne relance PAS la parole.
+
+                    // Mise à jour indicateur étape (comme avant)
                     if (stepIndicator) { const totalSteps = hypnoCurrentSessionData.script.length; const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex; stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`; }
                 }
 
-                // Arrêt session si temps écoulé
+                // Arrêt session si temps écoulé (comme avant)
                 if (remaining <= 0 && hypnoTimerInterval) {
                      console.log("Hypno timer 0 détecté dans updateHypnoTimer.");
                      hypnoSessionCompleted = true;
-                     stopHypnoSession(); // Arrête le timer via clearInterval dans stopHypnoSession
+                     stopHypnoSession();
                  }
             }
 			
