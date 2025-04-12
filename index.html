@@ -249,7 +249,7 @@
                  <button id="quick-intensity-submit" class="button-secondary" title="Noter l'intensité actuelle">💾</button>
             </div>
 
-            <p>Acouphènes Zen &copy; 2024 - Outil de gestion non médical.</p>
+            <p>Acouphènes Zen &copy; 2025 - Outil de gestion non médical.</p>
             <p style="font-size: 0.8em; margin-top: 5px;"><strong>Important:</strong> Cette application ne remplace pas un avis médical. Consultez un professionnel de santé.</p>
         </footer>
     </div>
@@ -831,12 +831,18 @@
 
                     currentUtterance.onstart = () => { console.log("TTS: onstart"); isCurrentlySpeakingInternal = true; };
                     currentUtterance.onend = () => { console.log("TTS: onend"); isCurrentlySpeakingInternal = false; currentUtterance = null; };
-                    currentUtterance.onerror = (e) => {
-                        const errorMsg = e.error || 'unknown';
-                        console.error('Erreur TTS:', errorMsg);
-                        if (errorMsg !== 'interrupted' && errorMsg !== 'canceled') UI.showToast(`Erreur lecture vocale (${errorMsg}).`, "error");
-                        isCurrentlySpeakingInternal = false; currentUtterance = null;
-                    };
+					currentUtterance.onerror = (e) => {
+						const errorMsg = e.error || 'unknown';
+						// **Modification Log**
+						if (errorMsg === 'interrupted' || errorMsg === 'canceled') {
+							 console.log(`TTS: Lecture interrompue (${errorMsg}) - Normal si arrêt/pause/changement page/étape.`);
+						} else {
+							 console.error('Erreur TTS:', errorMsg);
+							 UI.showToast(`Erreur lecture vocale (${errorMsg}).`, "error");
+						}
+						isCurrentlySpeakingInternal = false;
+						currentUtterance = null; // Assurer le nettoyage
+					};
 
                     try { synthesis.speak(currentUtterance); console.log("TTS: Demande de lecture:", text.substring(0,30)+"..."); return true; }
                     catch (e) { console.error("Erreur synthesis.speak:", e); UI.showToast("Impossible démarrer lecture.", "error"); isCurrentlySpeakingInternal = false; currentUtterance = null; return false; }
@@ -917,60 +923,73 @@
                  avance: { title: "Avancé (env. 20 min) - Modification de la Perception", duration: 1200, script: [ { time: 0, text: "Installez-vous confortablement. Fermez les yeux et prenez quelques instants pour entrer dans un état de relaxation profonde, en utilisant la technique qui vous convient le mieux (respiration, scan corporel...)." }, { time: 60, text: "Une fois bien détendu, portez votre attention sur votre acouphène. Observez-le avec une curiosité détachée, comme un scientifique observe un phénomène." }, { time: 120, text: "Quelles sont ses caractéristiques ? Est-il aigu, grave ? Continu, pulsatile ? Est-il stable ou changeant ? Essayez de le décrire mentalement, sans jugement de valeur ('gênant', 'horrible')." }, { time: 180, text: "Imaginez maintenant que vous avez des 'cadrans de contrôle' mentaux pour ce son." }, { time: 240, text: "Visualisez un cadran pour le volume. Imaginez que vous tournez ce cadran très lentement vers le bas. Même si le son réel ne change pas, notez toute modification dans votre perception ou votre réaction émotionnelle." }, { time: 330, text: "Visualisez un cadran pour la 'tonalité' ou la 'qualité' du son. Imaginez que vous pouvez le rendre légèrement plus grave, ou plus doux, ou plus diffus. Jouez mentalement avec ces caractéristiques." }, { time: 420, text: "Imaginez un cadran pour la 'localisation'. Pouvez-vous mentalement déplacer le son ? Le rendre plus externe, plus lointain ? Le laisser flotter hors de votre tête ?" }, { time: 510, text: "Visualisez un cadran pour l''émotion' associée au son. Imaginez tourner ce cadran de 'gêne' ou 'anxiété' vers 'neutre' ou même 'acceptation'." }, { time: 600, text: "Maintenant, laissez les cadrans et portez votre attention sur une sensation agréable dans votre corps. Peut-être la chaleur de vos mains, la détente de vos épaules, ou le calme de votre respiration." }, { time: 690, text: "Amplifiez cette sensation agréable. Laissez-la grandir et se diffuser dans tout votre corps, créant un sentiment général de bien-être." }, { time: 780, text: "Imaginez que ce bien-être est comme une bulle protectrice autour de vous. L'acouphène peut être là, à l'extérieur ou à l'intérieur de la bulle, mais il ne perturbe pas le calme à l'intérieur." }, { time: 900, text: "L'acouphène est juste un son. Il n'a que le pouvoir que vous lui donnez. Vous apprenez à lui retirer ce pouvoir émotionnel." }, { time: 1020, text: "Ancrez cette sensation de contrôle et de calme en vous. Prenez une profonde inspiration et expirez lentement." }, { time: 1140, text: "Rappelez-vous que cette capacité à modifier votre perception s'affine avec la pratique régulière." }, { time: 1170, text: "Commencez maintenant à revenir progressivement à votre état de conscience habituel. Sentez l'énergie revenir dans votre corps. Bougez les doigts, les orteils." }, { time: 1190, text: "Quand vous êtes prêt, ouvrez les yeux, en gardant ce sentiment de perspective et de calme intérieur renouvelé." } ] }
              };
 
-            function updateHypnoTimer() {
-                if (!hypnoCurrentSessionData || hypnoIsPaused) return; // Ne rien faire si pas de session ou en pause
+			// *** REMPLACEZ ENCORE VOTRE FONCTION updateHypnoTimer PAR CELLE-CI ***
+			function updateHypnoTimer() {
+				if (!hypnoCurrentSessionData || hypnoIsPaused) return;
 
-                const now = Date.now();
-                const elapsedSinceStart = (now - (hypnoSessionEndTime - hypnoCurrentSessionData.duration * 1000));
-                const effectiveElapsed = elapsedSinceStart - hypnoTotalPauseDuration; // Temps écoulé moins les pauses
-                const remaining = Math.max(0, hypnoCurrentSessionData.duration - effectiveElapsed / 1000);
+				const now = Date.now();
+				const elapsedSinceStart = (now - (hypnoSessionEndTime - hypnoCurrentSessionData.duration * 1000));
+				const effectiveElapsed = elapsedSinceStart - hypnoTotalPauseDuration;
+				const remaining = Math.max(0, hypnoCurrentSessionData.duration - effectiveElapsed / 1000);
 
-                const timerDisplay = document.querySelector('#hypnose-session .timer');
-                const progressBar = document.getElementById('session-progress-bar');
-                const textContent = document.getElementById('session-text-content');
-                const stepIndicator = document.getElementById('session-step-indicator');
+				const timerDisplay = document.querySelector('#hypnose-session .timer');
+				const progressBar = document.getElementById('session-progress-bar');
+				const textContent = document.getElementById('session-text-content');
+				const stepIndicator = document.getElementById('session-step-indicator');
 
-                if (!timerDisplay || !progressBar || !textContent || !stepIndicator) {
-                    console.warn("Eléments UI Hypnose manquants, arrêt.");
-                    stopHypnoSession(true); // Arrêt forcé si UI cassée
-                    return;
-                }
+				if (!timerDisplay || !progressBar || !textContent || !stepIndicator) { return; }
 
-                timerDisplay.textContent = Utils.formatTime(remaining);
-                const progressPercent = Math.min(100, (effectiveElapsed / 1000 / hypnoCurrentSessionData.duration) * 100);
-                progressBar.style.width = `${progressPercent}%`;
+				timerDisplay.textContent = Utils.formatTime(remaining);
+				const progressPercent = Math.min(100, (effectiveElapsed / 1000 / hypnoCurrentSessionData.duration) * 100);
+				progressBar.style.width = `${progressPercent}%`;
 
-                const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => (effectiveElapsed / 1000) >= step.time);
-                const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
+				const currentStepIndex = hypnoCurrentSessionData.script.slice().reverse().findIndex(step => (effectiveElapsed / 1000) >= step.time);
+				const currentStep = currentStepIndex !== -1 ? hypnoCurrentSessionData.script[hypnoCurrentSessionData.script.length - 1 - currentStepIndex] : null;
 
-                if (currentStep) {
-                    const currentStepTextRaw = currentStep.text;
-                    const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
-                    const currentTextElement = textContent.querySelector('p');
-                    const displayedTextEscaped = currentTextElement ? currentTextElement.dataset.rawText : null;
+				if (currentStep) {
+					const currentStepTextRaw = currentStep.text; // Texte de l'étape actuelle venant du script
 
-                    if (!displayedTextEscaped || displayedTextEscaped !== currentStepTextEscaped) {
-                        textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
-                        textContent.scrollTop = textContent.scrollHeight;
-                        hypnoLastSpokenText = currentStepTextRaw; // Met à jour le texte courant
-                        if (hypnoTtsEnabled && TTSManager.isSupported() && !hypnoIsPaused) {
-                             TTSManager.speak(hypnoLastSpokenText); // Lire le nouveau texte
-                        }
-                    }
+					// *** NOUVELLE LOGIQUE DE COMPARAISON ICI ***
+					// On compare le texte brut de l'étape actuelle avec le dernier texte qu'on a demandé de lire
+					if (currentStepTextRaw !== hypnoLastSpokenText) {
+						console.log(`[updateHypnoTimer] NOUVEAU texte détecté. Précédent: "${(hypnoLastSpokenText || 'null').substring(0,15)}...", Nouveau: "${currentStepTextRaw.substring(0,15)}..."`);
 
-                    const totalSteps = hypnoCurrentSessionData.script.length;
-                    const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex;
-                    stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`;
-                } else {
-                     stepIndicator.textContent = 'Préparation...';
-                }
+						// 1. Mettre à jour l'affichage DOM
+						const currentStepTextEscaped = Utils.escapeHtml(currentStepTextRaw);
+						textContent.innerHTML = `<p data-raw-text="${currentStepTextEscaped}">${currentStepTextEscaped}</p>`;
+						textContent.scrollTop = textContent.scrollHeight;
 
-                if (remaining <= 0 && hypnoTimerInterval) {
-                     console.log("Session hypnose terminée naturellement.");
-                     hypnoSessionCompleted = true;
-                     stopHypnoSession();
-                 }
-            }
+						// 2. Mettre à jour notre référence interne *après* avoir confirmé que c'est nouveau
+						hypnoLastSpokenText = currentStepTextRaw;
+
+						// 3. Demander la lecture du nouveau texte (si activé et non en pause)
+						if (hypnoTtsEnabled && TTSManager.isSupported() && !hypnoIsPaused) {
+							 console.log(`[updateHypnoTimer] Demande lecture pour: "${hypnoLastSpokenText.substring(0,30)}..."`);
+							 TTSManager.speak(hypnoLastSpokenText);
+						} else if (hypnoIsPaused) {
+							console.log("[updateHypnoTimer] Nouveau texte mais session en pause.");
+						}
+					} // *** Fin de la nouvelle logique de comparaison ***
+
+					// Mise à jour de l'indicateur d'étape (toujours fait si une étape existe)
+					const totalSteps = hypnoCurrentSessionData.script.length;
+					const currentStepNumber = hypnoCurrentSessionData.script.length - currentStepIndex;
+					stepIndicator.textContent = `Étape ${currentStepNumber} / ${totalSteps}`;
+
+				} else {
+					stepIndicator.textContent = 'Préparation...';
+					// Si aucune étape n'est trouvée, on pourrait réinitialiser hypnoLastSpokenText
+					// pour forcer la relecture si on revient à la première étape ? (à voir si nécessaire)
+					// hypnoLastSpokenText = null;
+				}
+
+				if (remaining <= 0 && hypnoTimerInterval) {
+					 console.log("Session hypnose terminée naturellement.");
+					 hypnoSessionCompleted = true;
+					 stopHypnoSession();
+				 }
+			}
+			// *** FIN DU REMPLACEMENT POUR updateHypnoTimer ***
 
             function startHypnoSession(sessionKey) {
                 console.log(`Démarrage session: ${sessionKey}`);
