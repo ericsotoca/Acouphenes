@@ -87,7 +87,6 @@
          /* Assurer que les boutons n'ont pas d'outline par défaut qui interfère */
          button:focus { outline: none; }
 
-
         /* Navigation */
         nav { position: fixed; top: 0; left: 0; width: 100%; background-color: var(--card-bg); box-shadow: var(--shadow); padding: var(--spacing-s) var(--spacing-l); z-index: 1000; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         nav .nav-brand { font-weight: bold; font-size: 1.3em; color: var(--primary-color); text-decoration: none; margin-right: var(--spacing-l); }
@@ -250,7 +249,12 @@
             output { min-width: 25px; }
             #hypnose-session .timer { font-size: 2em; }
             #hypnose-session .controls label { min-width: auto; }
-            #hypnose-session .controls input[type="range"] { width: 100px; }
+            #hypnose-session .controls input[type="range"] { width: 100px; vertical-align: middle; margin-bottom: 0; /* Ajusté car dans flexbox */ }
+            #hypnose-session .controls select { width: auto; display: inline-block; vertical-align: middle; margin-bottom: 0; max-width: 180px; /* Empêche le select de voix de devenir trop large */ }
+            #hypnose-session .controls .checkbox-group { margin-top: 0; width: 100%; /* Prendre toute la largeur */}
+            #hypnose-session .tts-status { font-size: 0.9em; font-style: italic; color: var(--disabled-color); }
+            #hypnose-session .session-main-controls { text-align: center; gap: var(--spacing-m); justify-content: center; } /* Classe pour les boutons Start/Pause/Stop */
+
             #quick-entry-widget { bottom: 5px; right: 5px; padding: var(--spacing-xs) var(--spacing-s); }
         }
 
@@ -289,7 +293,7 @@
                 <li><a href="#tracking" title="Suivi">📊</a></li>
                 <li><a href="#resources" title="Ressources">📚</a></li>
             </ul>
-             <button id="theme-toggle" title="Changer le thème">☀️</button>
+            <button id="theme-toggle" title="Changer de thème">🌙</button>
         </nav>
 
         <main id="main-content">
@@ -381,7 +385,13 @@
         <section class="content-section">
             <h2>🧘 Auto-Hypnose Guidée</h2>
             <p>Choisissez une session. Installez-vous au calme. Utilisez des écouteurs si possible.</p>
-             <div class="alert alert-info mt-m"> <strong>Conseil :</strong> Activez la lecture vocale (si dispo) pour fermer les yeux. La régularité est la clé. </div>
+             <div class="alert alert-info mt-m"> <strong>Conseils pour la séance :</strong>
+    <ul>
+        <li><strong>Lecture vocale :</strong> Activez-la (si disponible sur votre appareil) pour pouvoir fermer les yeux. Cela favorise une relaxation plus profonde et une meilleure concentration intérieure.</li>
+        <li><strong>Environnement :</strong> Choisissez un moment et un lieu calmes où vous ne serez pas dérangé. Asseyez-vous ou allongez-vous confortablement.</li>
+        <li><strong>Régularité :</strong> Comme pour toute compétence, la pratique régulière est essentielle. Essayez d'intégrer ces séances à votre routine pour en maximiser les bienfaits sur la perception de vos acouphènes et votre niveau de stress.</li>
+        <li><strong>Objectif :</strong> Rappelez-vous que l'objectif n'est pas d'éliminer l'acouphène, mais d'apprendre à mieux le gérer, à réduire son impact émotionnel et à détourner votre attention.</li>
+    </ul></div>
             <div id="hypnose-menu" class="mt-l">
                 <h3 class="mb-m">Sélectionnez une session :</h3>
                 <button class="button mb-m" data-session="debutant">Débutant (~10 min)</button>
@@ -423,7 +433,19 @@
          <section class="content-section">
             <h2>🔊 Générateur de Sons Thérapeutiques</h2>
             <p>Utilisez ces sons pour créer un environnement sonore plus confortable.</p>
-             <div class="alert alert-info mt-m"> <strong>Conseil :</strong> Expérimentez. Un volume juste sous le niveau de l'acouphène est souvent recommandé (TRT). </div>
+             <!-- DANS template-sounds, REMPLACEZ le contenu du div.alert.alert-info par ceci -->
+<div class="alert alert-info mt-m">
+    <strong>Conseils d'utilisation des sons :</strong>
+    <ul>
+        <li><strong>Expérimentation :</strong> Chaque acouphène est unique. Testez les différents types de bruits (Blanc, Rose, Brun) et ajustez le volume pour trouver ce qui vous apporte le plus de soulagement ou de confort.</li>
+        <li><strong>Volume (TRT/Habituation) :</strong> Souvent, un volume réglé *juste en dessous ou au niveau* de votre acouphène est plus efficace à long terme (principe de la TRT - Tinnitus Retraining Therapy). Le but est d'aider le cerveau à s'habituer au son interne, pas de le masquer complètement et agressivement.</li>
+        <li><strong>Volume (Masquage/Distraction) :</strong> Si votre but est un soulagement immédiat ou une distraction, vous pouvez augmenter légèrement le volume, mais évitez de le régler trop fort pour ne pas fatiguer vos oreilles.</li>
+        <li><strong>Durée :</strong> Commencez par des durées courtes (ex: 15-30 min) et augmentez si vous trouvez cela bénéfique. Utilisez le minuteur si besoin (ex: pour vous endormir).</li>
+        <li><strong>Contexte :</strong> Ces sons peuvent être utiles pendant des activités calmes, au travail (si possible), ou pour faciliter l'endormissement.</li>
+    </ul>
+    <p class="mt-s">Référez-vous à la section <a href="#resources">📚 Ressources</a> pour plus de détails sur les types de bruits.</p>
+</div>
+<!-- FIN DU REMPLACEMENT -->
 
              <!-- Favoris -->
              <fieldset id="favorite-sounds">
@@ -537,7 +559,6 @@
         </section>
     </template>
 
-
     <!-- --- JavaScript Intégré --- -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -557,7 +578,6 @@
                  }
                  return { escapeHtml, formatTime, updateBodyPadding, debounce, generateUUID };
             })();
-
 
             // --- MODULE: État Global & Stockage Local ---
             const Store = (() => {
@@ -703,7 +723,7 @@
                 function renderTemplate(templateId) { const template = document.getElementById(templateId); if (!template) { console.error(`Template ${templateId} non trouvé`); uiElements.mainContent.innerHTML = `<section class="content-section"><p class="alert alert-danger">Erreur contenu page.</p></section>`; setActiveNavLink(''); return null; } try { const content = template.content.cloneNode(true); uiElements.mainContent.innerHTML = ''; uiElements.mainContent.appendChild(content); setActiveNavLink(templateId.replace('template-', '')); window.scrollTo({ top: 0, behavior: 'smooth' }); return uiElements.mainContent.firstChild; } catch (error) { console.error(`Erreur rendu ${templateId}:`, error); uiElements.mainContent.innerHTML = `<section class="content-section"><p class="alert alert-danger">Erreur affichage section.</p></section>`; setActiveNavLink(''); return null; } }
                 function setActiveNavLink(hash) { uiElements.navLinks.forEach(link => { link.classList.remove('active'); if (link.getAttribute('href') === `#${hash}`) link.classList.add('active'); }); }
                 function displayEvaluationResult(score, message) { const resultDiv = document.getElementById('evaluation-result'); if (resultDiv) { let alertClass = 'alert-success'; if (score >= 25) alertClass = 'alert-danger'; else if (score >= 15) alertClass = 'alert-warning'; else alertClass = 'alert-info'; resultDiv.innerHTML = `<div class="alert ${alertClass}"><strong>Résultat :</strong> ${Utils.escapeHtml(message)} (Score d'impact: ${score})</div>`; resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
-                function renderJournalEntry(entry) { const li = document.createElement('li'); const entryDate = new Date(entry.date); const formattedDateTime = entryDate.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }); li.innerHTML = `<strong>${formattedDateTime}</strong> - Intensité: <span style="font-weight: bold; color: var(--primary-color);">${entry.intensity}/10</span> ${entry.notes ? `<br><em>${Utils.escapeHtml(entry.notes)}</em>` : ''}`; return li; }
+                function renderJournalEntry(entry) { const li = document.createElement('li'); const entryDate = new Date(entry.date); const formattedDateTime = entryDate.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }); li.innerHTML = `<strong>${formattedDateTime}</strong> - Intensité: <span style="font-weight: bold; color: var(--primary-color);">${entry.intensity}/10</span> ${entry.notes ? `<br><em>\${Utils.escapeHtml(entry.notes)}</em>` : ''}`; return li; }
                 function displayJournalHistory(entries) { const historyList = document.querySelector('#tracking-history ul'); const loadingMsg = document.getElementById('history-loading'); if (!historyList || !loadingMsg) return; historyList.innerHTML = ''; if (!entries || entries.length === 0) { loadingMsg.textContent = "Journal vide."; loadingMsg.style.display = 'block'; } else { loadingMsg.style.display = 'none'; entries.forEach(entry => { const li = renderJournalEntry(entry); if (li) historyList.appendChild(li); }); } }
                 function showToast(message, type = 'info', duration = 3000) { const toast = document.createElement('div'); toast.className = `toast toast-${type}`; toast.textContent = message; document.body.appendChild(toast); requestAnimationFrame(() => { toast.classList.add('show'); }); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, { once: true }); }, duration); }
                 // Nouvelle fonction pour afficher les favoris
@@ -1024,7 +1044,7 @@
 							 console.log(`[updateHypnoTimer] Demande lecture pour: "${hypnoLastSpokenText.substring(0,30)}..."`);
 							 TTSManager.speak(hypnoLastSpokenText);
 						} else if (hypnoIsPaused) {
-							console.log("[updateHypnoTimer] Nouveau texte mais session en pause.");
+						console.log("[updateHypnoTimer] Nouveau texte mais session en pause.");
 						}
 					} // *** Fin de la nouvelle logique de comparaison ***
 
@@ -1067,7 +1087,6 @@
                 const volumeSlider = document.getElementById('hypno-volume');
                 const ttsToggle = document.getElementById('hypno-tts-enable');
                 const voiceSelect = document.getElementById('hypno-voice-select');
-
 
                 // Initialisation état
                 hypnoIsPaused = false;
