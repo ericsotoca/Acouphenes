@@ -194,24 +194,80 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            nav { padding: var(--spacing-s) var(--spacing-m); justify-content: center; }
-            nav .nav-brand { margin-bottom: var(--spacing-s); width: 100%; text-align: center; }
-            nav ul { gap: var(--spacing-s); justify-content: center; width: 100%; margin-top: var(--spacing-s); }
+            nav {
+                padding: var(--spacing-s) var(--spacing-m);
+                justify-content: center;
+            }
+            nav .nav-brand {
+                margin-bottom: var(--spacing-s);
+                width: 100%;
+                text-align: center;
+            }
+            /* Modification pour nav ul */
+            nav ul {
+                display: flex; /* Assurez-vous que flex est défini ici */
+                justify-content: center; /* Garde les éléments centrés */
+                width: 100%;
+                margin-top: var(--spacing-s);
+                padding: 0; /* Enlève le padding par défaut */
+                gap: 0; /* Supprime l'espacement, flex-grow gère */
+            }
+            /* NOUVEAU: Chaque élément de liste s'étend */
+            nav li {
+                flex-grow: 1;
+                list-style: none;
+                /* Optionnel: Ajouter une bordure fine pour voir la séparation ? */
+                /* border-right: 1px solid var(--border-color); */
+            }
+            /* nav li:last-child {
+                border-right: none;
+            } */
+
+            /* MODIFIÉ: Pour les liens/icônes dans la nav mobile */
+            nav a {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                padding: var(--spacing-m) 0; /* Augmente le padding vertical */
+                font-size: 1.8em; /* Augmente la taille de l'icône */
+                border-radius: 0; /* Optionnel: Enlever border-radius si pleine largeur */
+                min-height: 50px; /* Hauteur minimale cliquable */
+                 /* S'assurer que le style actif/hover reste visible */
+                 /* Si background change, text color doit aussi pour contraste */
+                /* nav a:hover, nav a.active défini plus haut, vérifier s'il faut adapter */
+                 color: var(--link-color); /* Couleur par défaut */
+            }
+            nav a:hover, nav a.active {
+                color: var(--button-text); /* Texte blanc/sombre selon thème */
+                background-color: var(--primary-color); /* Fond primaire */
+            }
+
+            /* Autres styles 768px */
             #app { padding: var(--spacing-m); }
             .content-section { padding: var(--spacing-m); }
             input[type="range"] { width: calc(100% - 40px); }
             output { min-width: 25px; }
             #hypnose-session .timer { font-size: 2em; }
-            #hypnose-session .controls label { min-width: auto; /* Permet de réduire si besoin */ }
+            #hypnose-session .controls label { min-width: auto; }
             #hypnose-session .controls input[type="range"] { width: 100px; }
             #quick-entry-widget { bottom: 5px; right: 5px; padding: var(--spacing-xs) var(--spacing-s); }
         }
+
         @media (max-width: 480px) {
-            nav ul { gap: var(--spacing-xs); }
-            nav a { padding: var(--spacing-xs) var(--spacing-s); font-size: 0.9em; }
-            button, .button { font-size: 0.95em; padding: var(--spacing-s) var(--spacing-m); }
+            /* Styles spécifiques pour très petits écrans */
+            /* Ajustement taille icône nav si 1.8em est trop gros */
+            nav a {
+                font-size: 1.6em; /* Légèrement plus petit */
+                padding: var(--spacing-s) 0; /* Moins de padding vertical */
+                min-height: 45px; /* Hauteur minimale légèrement réduite */
+            }
+            button, .button {
+                font-size: 0.95em;
+                padding: var(--spacing-s) var(--spacing-m);
+            }
             .chart-text { font-size: 9px; }
-            #quick-entry-widget label { display: none; /* Cache le label sur très petit écran */ }
+            #quick-entry-widget label { display: none; }
             #quick-entry-widget input[type="range"] { width: 80px; }
         }
 
