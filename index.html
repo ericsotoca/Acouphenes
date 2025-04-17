@@ -405,26 +405,57 @@
                 <div class="progress-bar-container"><div class="progress-bar" id="session-progress-bar"></div></div>
                 <p id="session-step-indicator" class="text-center" style="font-style: italic; margin-bottom: var(--spacing-m);"></p>
                 <div class="session-text" id="session-text-content"> <p>Chargement...</p> </div>
-                <div class="controls mt-l">
-                     <div>
-                         <label for="hypno-noise">Bruit fond:</label>
-                         <select id="hypno-noise"> <option value="none">Aucun</option> <option value="white">Blanc</option> <option value="pink">Rose</option> <option value="brown">Brun</option> </select>
-                         <label for="hypno-volume" class="ml-m">Vol:</label>
-                         <input type="range" id="hypno-volume" min="0" max="0.5" step="0.01" value="0.05">
-                     </div>
-                     <div class="checkbox-group">
-                         <input type="checkbox" id="hypno-tts-enable">
-                         <label for="hypno-tts-enable">🗣️ Lecture vocale</label>
-                         <select id="hypno-voice-select" class="ml-m" title="Choisir la voix (si supporté)"> <option value="">Voix par défaut</option> </select>
-                         <span id="tts-status" class="tts-status"></span>
-                     </div>
-                    <div class="mt-l session-main-controls">
-                        <button id="start-session-btn" class="button-secondary" disabled>▶️ Démarrer</button>
-                        <button id="pause-session-btn" class="button-secondary hidden" title="Pause">⏸️</button>
-                        <button id="resume-session-btn" class="button-secondary hidden" title="Reprendre">▶️</button>
-                        <button id="stop-session-btn" class="button-danger hidden" title="Arrêter">⏹️</button>
-                    </div>
-                </div>
+
+				<!-- ***** BLOC HTML À REMPLACER/INSÉRER DANS <template id="template-hypnose"> ***** -->
+				<!-- Concerne la sélection du bruit de fond -->
+
+				<div class="controls mt-l"> <!-- C'est le conteneur général des contrôles -->
+
+					<!-- Section Bruit de fond (avec le select mis à jour) -->
+					<div style="display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-m); margin-bottom: var(--spacing-m);">
+						<label for="hypno-noise" style="margin-bottom: 0; min-width: 80px;">Bruit fond:</label>
+						<select id="hypno-noise" style="min-width: 180px; flex-grow: 1;">
+							<optgroup label="Standards">
+								<option value="none">Aucun</option>
+								<option value="white">Blanc</option>
+								<option value="pink">Rose</option>
+								<option value="brown">Brun</option>
+							</optgroup>
+							<!-- Le groupe <optgroup label="Favoris"> sera ajouté ici par JavaScript -->
+						</select>
+					</div>
+
+					<!-- Section Volume (avec slider, +/-, %) -->
+					<div style="display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-s); margin-bottom: var(--spacing-m);">
+						<label for="hypno-volume" style="margin-bottom: 0; min-width: 80px;">Vol:</label>
+						<button type="button" id="hypno-volume-down" class="button-icon" aria-label="Diminuer volume" style="min-width: 35px; padding: 5px;">-</button>
+						<input type="range" id="hypno-volume" min="0" max="0.5" step="0.01" value="0.05" style="width: 100px; vertical-align: middle; margin: 0 var(--spacing-xs);">
+						<button type="button" id="hypno-volume-up" class="button-icon" aria-label="Augmenter volume" style="min-width: 35px; padding: 5px;">+</button>
+						<output for="hypno-volume" id="hypno-volume-percent" style="font-weight: bold; min-width: 40px; text-align: right; margin-left: var(--spacing-xs);">5%</output>
+					</div>
+
+					<!-- Section Lecture Vocale (TTS) -->
+					<div class="checkbox-group" style="margin-bottom: var(--spacing-m);">
+						<input type="checkbox" id="hypno-tts-enable">
+						<label for="hypno-tts-enable">🗣️ Lecture vocale</label>
+						<select id="hypno-voice-select" class="ml-m" title="Choisir la voix (si supporté)">
+							 <option value="">Voix par défaut</option>
+						</select>
+						<span id="tts-status" class="tts-status"></span>
+					</div>
+
+					<!-- Boutons principaux de la session -->
+					<div class="mt-l session-main-controls">
+						<button id="start-session-btn" class="button-secondary" disabled>▶️ Sélectionner</button>
+						<button id="pause-session-btn" class="button-secondary hidden" title="Pause">⏸️</button>
+						<button id="resume-session-btn" class="button-secondary hidden" title="Reprendre">▶️</button>
+						<button id="stop-session-btn" class="button-danger hidden" title="Arrêter">⏹️</button>
+					</div>
+
+				</div>
+				<!-- ***** FIN DU BLOC HTML ***** -->
+
+
             </div>
         </section>
     </template>
@@ -463,7 +494,7 @@
                  </div>
                 <div class="mb-m">
                     <label for="sound-volume">Volume :</label>
-                    <input type="range" id="sound-volume" min="0" max="0.7" step="0.01" value="0.1" oninput="this.nextElementSibling.textContent = parseFloat(this.value).toFixed(2)"> <output>0.10</output>
+                    <input type="range" id="sound-volume" min="0" max="0.5" step="0.01" value="0.1" oninput="this.nextElementSibling.textContent = parseFloat(this.value).toFixed(2)"> <output>0.10</output>
                      <button id="save-favorite-btn" class="button-icon" title="❤️ Enregistrer ce réglage comme favori" style="margin-left: 10px; background-color: var(--accent-color); color: var(--bg-color); padding: 6px 8px;">❤️</button>
                 </div>
                  <div class="mb-l">
@@ -1203,57 +1234,301 @@
                 if (!forced) UI.showToast(sessionEndedNaturally ? "Session terminée !" : "Session arrêtée.", sessionEndedNaturally ? "success" : "warning");
             }
 
-            function initHypnosePage() {
-                 console.log("Init Hypnose");
-                 const menu = document.getElementById('hypnose-menu');
-                 const sessionView = document.getElementById('hypnose-session');
-                 const startBtn = document.getElementById('start-session-btn');
-                 const stopBtn = document.getElementById('stop-session-btn');
-                 const pauseBtn = document.getElementById('pause-session-btn');
-                 const resumeBtn = document.getElementById('resume-session-btn');
-                 const ttsToggle = document.getElementById('hypno-tts-enable');
-                 const voiceSelect = document.getElementById('hypno-voice-select');
-                 const ttsStatus = document.getElementById('tts-status');
+            // ========================================================
+            //      NOUVELLE FONCTION initHypnosePage COMPLÈTE
+            //      (Intègre l'original, le volume amélioré et les logs)
+            // ========================================================
+			// ========================================================
+			//      FONCTION initHypnosePage COMPLÈTE À UTILISER
+			// ========================================================
+			function initHypnosePage() {
+				 console.log("==> DIAG: Entrée dans initHypnosePage");
 
-                 // Reset UI
-                 menu?.classList.remove('hidden');
-                 sessionView?.classList.add('hidden');
-                 startBtn?.classList.remove('hidden'); startBtn.textContent = "▶️ Sélectionner"; startBtn.disabled = true; startBtn.onclick = null;
-                 stopBtn?.classList.add('hidden');
-                 pauseBtn?.classList.add('hidden');
-                 resumeBtn?.classList.add('hidden');
+				 // --- Récupération des éléments DOM ---
+				 const menu = document.getElementById('hypnose-menu');
+				 const sessionView = document.getElementById('hypnose-session');
+				 const startBtn = document.getElementById('start-session-btn');
+				 const stopBtn = document.getElementById('stop-session-btn');
+				 const pauseBtn = document.getElementById('pause-session-btn');
+				 const resumeBtn = document.getElementById('resume-session-btn');
+				 const noiseSelect = document.getElementById('hypno-noise'); // Select bruit
+				 const ttsToggle = document.getElementById('hypno-tts-enable');
+				 const voiceSelect = document.getElementById('hypno-voice-select');
+				 const ttsStatus = document.getElementById('tts-status');
+				 const volumeSlider = document.getElementById('hypno-volume');
+				 const volumePercentOutput = document.getElementById('hypno-volume-percent');
+				 const volumeDownBtn = document.getElementById('hypno-volume-down');
+				 const volumeUpBtn = document.getElementById('hypno-volume-up');
 
-                 // Setup TTS Controls
-                 if (ttsToggle && ttsStatus && voiceSelect) {
-                     const isTtsSupported = TTSManager.isSupported();
-                     ttsToggle.disabled = !isTtsSupported;
-                     voiceSelect.disabled = !isTtsSupported;
-                     ttsStatus.textContent = isTtsSupported ? '' : "(Lecture vocale non supportée par votre appareil/navigateur)";
-                     if (isTtsSupported) {
-                         ttsToggle.checked = Store.getTtsPreference();
-                         TTSManager.populateVoiceList(); // Assure que la liste est à jour
-                         voiceSelect.value = Store.getPreferredVoiceURI() || ""; // Select saved voice or default
+				 console.log("==> DIAG: Slider trouvé ?", volumeSlider);
+				 console.log("==> DIAG: Output trouvé ?", volumePercentOutput);
+				 console.log("==> DIAG: Select Bruit trouvé ?", noiseSelect);
 
-                         pageHandlers.ttsToggleChange = handleTtsToggleChange;
-                         pageHandlers.voiceSelectChange = handleVoiceSelectChange;
-                         ttsToggle.removeEventListener('change', pageHandlers.ttsToggleChange); ttsToggle.addEventListener('change', pageHandlers.ttsToggleChange);
-                         voiceSelect.removeEventListener('change', pageHandlers.voiceSelectChange); voiceSelect.addEventListener('change', pageHandlers.voiceSelectChange);
-                     } else { ttsToggle.checked = false; }
-                 }
+				 // --- Réinitialisation de l'interface utilisateur ---
+				 menu?.classList.remove('hidden');
+				 sessionView?.classList.add('hidden');
+				 if(startBtn) {
+					startBtn.classList.remove('hidden');
+					startBtn.textContent = "▶️ Sélectionner";
+					startBtn.disabled = true;
+					startBtn.onclick = null;
+				 }
+				 stopBtn?.classList.add('hidden');
+				 pauseBtn?.classList.add('hidden');
+				 resumeBtn?.classList.add('hidden');
 
-                 // Attach button listeners using pageHandlers
-                 pageHandlers.hypnoMenuClick = handleHypnoMenuClick;
-                 pageHandlers.hypnoPauseClick = pauseHypnoSession;
-                 pageHandlers.hypnoResumeClick = resumeHypnoSession;
-                 pageHandlers.hypnoStopClick = () => stopHypnoSession(); // Need wrapper lambda
+				 // --- Configuration des contrôles TTS ---
+				 if (ttsToggle && ttsStatus && voiceSelect) {
+					 const isTtsSupported = TTSManager.isSupported();
+					 ttsToggle.disabled = !isTtsSupported;
+					 voiceSelect.disabled = !isTtsSupported;
+					 ttsStatus.textContent = isTtsSupported ? '' : "(Lecture vocale non supportée)";
+					 if (isTtsSupported) {
+						 ttsToggle.checked = Store.getTtsPreference();
+						 TTSManager.populateVoiceList();
+						 voiceSelect.value = Store.getPreferredVoiceURI() || "";
 
-                 menu?.removeEventListener('click', pageHandlers.hypnoMenuClick); menu?.addEventListener('click', pageHandlers.hypnoMenuClick);
-                 pauseBtn?.removeEventListener('click', pageHandlers.hypnoPauseClick); pauseBtn?.addEventListener('click', pageHandlers.hypnoPauseClick);
-                 resumeBtn?.removeEventListener('click', pageHandlers.hypnoResumeClick); resumeBtn?.addEventListener('click', pageHandlers.hypnoResumeClick);
-                 stopBtn?.removeEventListener('click', pageHandlers.hypnoStopClick); stopBtn?.addEventListener('click', pageHandlers.hypnoStopClick);
+						 // Assure-toi que ces fonctions existent et sont accessibles
+						 if(typeof handleTtsToggleChange === 'function') {
+							ttsToggle.removeEventListener('change', handleTtsToggleChange);
+							ttsToggle.addEventListener('change', handleTtsToggleChange);
+						 }
+						 if(typeof handleVoiceSelectChange === 'function') {
+							voiceSelect.removeEventListener('change', handleVoiceSelectChange);
+							voiceSelect.addEventListener('change', handleVoiceSelectChange);
+						 }
+					 } else {
+						 ttsToggle.checked = false;
+					 }
+				 }
 
-                 console.log("Hypnose listeners attachés.");
-             }
+				 // --- Chargement des favoris dans le select de bruit ---
+				 if (noiseSelect) {
+					 const existingFavOptgroup = noiseSelect.querySelector('optgroup[label="Favoris"]');
+					 if (existingFavOptgroup) {
+						 existingFavOptgroup.remove();
+					 }
+					 const favoriteSounds = Store.getFavoriteSounds();
+					 console.log("==> DIAG: Favoris trouvés :", favoriteSounds.length);
+					 if (favoriteSounds.length > 0) {
+						 const favOptgroup = document.createElement('optgroup');
+						 favOptgroup.label = "Favoris";
+						 favoriteSounds.forEach(fav => {
+							 const option = document.createElement('option');
+							 option.value = `fav_${fav.id}`;
+							 option.textContent = fav.name; // Par exemple: "Pluie douce (15%)"
+							 // Ajouter le volume au texte pour info ?
+							 // option.textContent = `${fav.name} (${Math.round((fav.volume / 0.5) * 100)}%)`;
+							 favOptgroup.appendChild(option);
+						 });
+						 noiseSelect.appendChild(favOptgroup);
+						 console.log("==> DIAG: Options favorites ajoutées au select.");
+					 }
+				 } else {
+					  console.error("!!!!!! DIAG: Select #hypno-noise non trouvé pour ajout favoris !");
+				 }
+
+				 // --- Définition des fonctions locales pour le volume ---
+				 const updateVolumeDisplay = () => {
+					 console.log("----> DIAG: updateVolumeDisplay appelée");
+					 if (volumeSlider && volumePercentOutput) {
+						 try {
+							 const value = parseFloat(volumeSlider.value);
+							 const max = parseFloat(volumeSlider.max);
+							 const percentage = Math.round((value / max) * 100);
+							 console.log(`------> DIAG: Val:${value}, Max:${max}, %:${percentage}`);
+							 volumePercentOutput.textContent = `${percentage}%`;
+							 console.log("------> DIAG: textContent mis à jour.");
+						 } catch (e) { console.error("!!!!!! DIAG: ERREUR dans updateVolumeDisplay:", e); }
+					 } else { console.warn("------> DIAG: Slider ou Output manquant dans updateVolumeDisplay !"); }
+				 };
+
+				 const handleVolumeChange = () => {
+					 console.log("---> DIAG: handleVolumeChange appelée");
+					 updateVolumeDisplay();
+					 if (typeof hypnoCurrentSessionData !== 'undefined' && hypnoCurrentSessionData &&
+						 typeof hypnoIsPaused !== 'undefined' && !hypnoIsPaused &&
+						 typeof hypnoNoiseType !== 'undefined' && hypnoNoiseType !== 'none') {
+						 if(volumeSlider) {
+							 let currentHypnoVolume = parseFloat(volumeSlider.value);
+							 AudioManager.setVolume(currentHypnoVolume);
+							 console.log("---> DIAG: Volume audio ajusté à :", currentHypnoVolume);
+						 }
+					 }
+				 };
+
+				 const changeVolumeByStep = (direction) => {
+					 console.log("--> DIAG: changeVolumeByStep appelée, direction:", direction);
+					 if (!volumeSlider) { console.error("--> DIAG: Slider non trouvé !"); return; }
+					 const step = parseFloat(volumeSlider.step) || 0.01;
+					 const min = parseFloat(volumeSlider.min) || 0;
+					 const max = parseFloat(volumeSlider.max) || 0.5;
+					 let currentValue = parseFloat(volumeSlider.value);
+					 let newValue = currentValue + (direction * step);
+					 newValue = parseFloat(newValue.toFixed(3));
+					 newValue = Math.max(min, Math.min(max, newValue));
+					 if (newValue !== currentValue) {
+						 volumeSlider.value = newValue;
+						 console.log("--> DIAG: Nouvelle valeur slider:", volumeSlider.value);
+						 console.log("--> DIAG: Déclenchement manuel 'input'");
+						 volumeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+					 }
+				 };
+
+				 // --- Définition de la fonction locale pour le select bruit ---
+				 const handleNoiseSelectionChange = (event) => {
+					 console.log("---> DIAG: handleNoiseSelectionChange appelée");
+					 const selectedValue = event.target.value;
+					 const isFavorite = selectedValue.startsWith('fav_');
+					 let noiseTypeForSession = 'none';
+
+					 if (isFavorite) {
+						 const favoriteId = selectedValue.substring(4);
+						 console.log("---> DIAG: Favori sélectionné, ID:", favoriteId);
+						 const favorite = Store.getFavoriteSounds().find(f => f.id === favoriteId);
+						 if (favorite) {
+							 console.log("---> DIAG: Détails favori:", favorite);
+							 noiseTypeForSession = favorite.type;
+							 if (volumeSlider) {
+								 volumeSlider.value = favorite.volume;
+								 console.log("---> DIAG: MAJ volume slider à", favorite.volume, "& déclenchement input");
+								 volumeSlider.dispatchEvent(new Event('input', { bubbles: true }));
+							 }
+						 } else {
+							 console.error("!!!!!! DIAG: Favori sélectionné mais non trouvé !", favoriteId);
+							 noiseTypeForSession = 'none';
+						 }
+					 } else {
+						 console.log("---> DIAG: Bruit standard sélectionné:", selectedValue);
+						 noiseTypeForSession = selectedValue;
+					 }
+
+					 // Mise à jour de la variable globale hypnoNoiseType (doit être accessible)
+					 if (typeof hypnoNoiseType !== 'undefined') {
+						   console.log("---> DIAG: Mise à jour de hypnoNoiseType à:", noiseTypeForSession);
+						   hypnoNoiseType = noiseTypeForSession;
+					 } else {
+						   console.warn("Attention: variable hypnoNoiseType non trouvée pour mise à jour.");
+						   // Il faudra peut-être déclarer hypnoNoiseType en dehors de initHypnosePage
+						   // Par exemple : let hypnoNoiseType = 'none'; au même niveau que hypnoTimerInterval etc.
+					 }
+				 };
+
+				 // --- Ajout des écouteurs d'événements ---
+				 // Volume Slider
+				 if (volumeSlider) {
+					 console.log("==> DIAG: Ajout listener 'input' au slider");
+					 volumeSlider.removeEventListener('input', handleVolumeChange); // Nettoyage
+					 volumeSlider.addEventListener('input', handleVolumeChange);
+				 } else { console.error("!!!!!! DIAG: Slider volume non trouvé pour listener !"); }
+				 // Volume Boutons +/-
+				 if (volumeDownBtn) {
+					 console.log("==> DIAG: Ajout listener 'click' au bouton Moins");
+					 // Note: Le nettoyage de ce listener anonyme est difficile sans référence nommée
+					 volumeDownBtn.onclick = () => changeVolumeByStep(-1); // Utilise onclick pour simplicité ici
+				 }
+				 if (volumeUpBtn) {
+					 console.log("==> DIAG: Ajout listener 'click' au bouton Plus");
+					 volumeUpBtn.onclick = () => changeVolumeByStep(1); // Utilise onclick pour simplicité ici
+				 }
+				 // Select Bruit
+				 if (noiseSelect) {
+					 console.log("==> DIAG: Ajout listener 'change' au select bruit");
+					 // Note: Le nettoyage de ce listener anonyme est difficile sans référence nommée
+					 noiseSelect.onchange = handleNoiseSelectionChange; // Utilise onchange pour simplicité ici
+				 }
+
+				 // Boutons de Session Principaux (Assumant que les fonctions existent et sont accessibles)
+				 if (typeof handleHypnoMenuClick === 'function') {
+					menu?.removeEventListener('click', handleHypnoMenuClick);
+					menu?.addEventListener('click', handleHypnoMenuClick);
+				 }
+				 if (typeof pauseHypnoSession === 'function') {
+					pauseBtn?.removeEventListener('click', pauseHypnoSession);
+					pauseBtn?.addEventListener('click', pauseHypnoSession);
+				 }
+				 if (typeof resumeHypnoSession === 'function') {
+					resumeBtn?.removeEventListener('click', resumeHypnoSession);
+					resumeBtn?.addEventListener('click', resumeHypnoSession);
+				 }
+				 if (typeof stopHypnoSession === 'function') {
+					// Utiliser une fonction anonyme pour appeler stopHypnoSession sans argument ou avec 'true' si nécessaire
+					const stopHandler = () => stopHypnoSession(); // Ou stopHypnoSession(true) selon la signature
+					stopBtn?.removeEventListener('click', stopHandler); // Attention: ne fonctionnera pas si stopHandler est recréée
+					stopBtn?.addEventListener('click', stopHandler);
+				 }
+
+
+				 // --- Mise à jour initiale de l'affichage du volume ---
+				 console.log("==> DIAG: Appel initial de updateVolumeDisplay");
+				 updateVolumeDisplay();
+
+				 console.log("Hypnose listeners attachés.");
+				 console.log("==> DIAG: Fin de initHypnosePage");
+			}
+
+            // ========================================================
+            //      FONCTION cleanupHypnosePage MISE À JOUR
+            //      (Avec tentatives de nettoyage des listeners volume)
+            // ========================================================
+			// ========================================================
+			//      FONCTION cleanupHypnosePage COMPLÈTE À UTILISER
+			// ========================================================
+			function cleanupHypnosePage() {
+				 console.log("<== DIAG: Entrée dans cleanupHypnosePage");
+
+				 // --- Arrêt de la session si en cours ---
+				 // Assume que hypnoCurrentSessionData et stopHypnoSession existent et sont accessibles
+				 if (typeof hypnoCurrentSessionData !== 'undefined' && hypnoCurrentSessionData) {
+					console.log("<== DIAG: Arrêt forcé de la session hypnose en cours.");
+					stopHypnoSession(true); // Arrêt forcé
+				 }
+
+				 // --- Retrait des listeners ---
+				 // Récupération des éléments pour le nettoyage
+				 const menu = document.getElementById('hypnose-menu');
+				 const stopBtn = document.getElementById('stop-session-btn');
+				 const pauseBtn = document.getElementById('pause-session-btn');
+				 const resumeBtn = document.getElementById('resume-session-btn');
+				 const ttsToggle = document.getElementById('hypno-tts-enable');
+				 const voiceSelect = document.getElementById('hypno-voice-select');
+				 const startBtn = document.getElementById('start-session-btn');
+				 const volumeSlider = document.getElementById('hypno-volume');
+				 const volumeDownBtn = document.getElementById('hypno-volume-down');
+				 const volumeUpBtn = document.getElementById('hypno-volume-up');
+				 const noiseSelect = document.getElementById('hypno-noise');
+
+				 // Nettoyage listeners originaux (si fonctions accessibles)
+				 if (menu && typeof handleHypnoMenuClick === 'function') menu.removeEventListener('click', handleHypnoMenuClick);
+				 // Pour stopBtn, si on a utilisé une fonction anonyme, removeEventListener ne marche pas facilement.
+				 // if (stopBtn && ...) stopBtn.removeEventListener('click', ???);
+				 if (pauseBtn && typeof pauseHypnoSession === 'function') pauseBtn.removeEventListener('click', pauseHypnoSession);
+				 if (resumeBtn && typeof resumeHypnoSession === 'function') resumeBtn.removeEventListener('click', resumeHypnoSession);
+				 if (ttsToggle && typeof handleTtsToggleChange === 'function') ttsToggle.removeEventListener('change', handleTtsToggleChange);
+				 if (voiceSelect && typeof handleVoiceSelectChange === 'function') voiceSelect.removeEventListener('change', handleVoiceSelectChange);
+				 if (startBtn) startBtn.onclick = null; // Nettoie le listener direct s'il existe
+
+				 // Nettoyage listeners volume et select bruit
+				 // Ces listeners ont été ajoutés avec des fonctions définies DANS initHypnosePage
+				 // ou via onclick/onchange, donc removeEventListener est difficile ici.
+				 // Le simple fait de quitter la page ou de re-router (ce qui appelle cleanup puis init)
+				 // devrait suffire car les anciennes références seront perdues et de nouvelles ajoutées par init.
+				 // On peut explicitement mettre les handlers .onclick/.onchange à null :
+				 if (volumeSlider) {
+					// Difficile de retirer handleVolumeChange ajoutée avec addEventListener si définie dans init
+					console.log("<== DIAG: Nettoyage listener slider volume (potentiellement incomplet si handleVolumeChange est local à init)");
+				 }
+				 if (volumeDownBtn) volumeDownBtn.onclick = null;
+				 if (volumeUpBtn) volumeUpBtn.onclick = null;
+				 if (noiseSelect) noiseSelect.onchange = null;
+				 console.log("<== DIAG: Listeners .onclick/.onchange des contrôles volume/bruit mis à null.");
+
+
+				 console.log("Cleanup Hypnose terminé.");
+				 console.log("<== DIAG: Fin de cleanupHypnosePage");
+			}
+
+
 
             function handleHypnoMenuClick(e) {
                 if (e.target.tagName === 'BUTTON' && e.target.dataset.session) {
